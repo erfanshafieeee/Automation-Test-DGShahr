@@ -15,7 +15,7 @@ request_step = None
 
 request_step = get_request_step_guaranty()
 
-# تنظیمات Chrome
+
 chrome_options = Options()
 chrome_options.add_argument('--log-level=3')
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -31,21 +31,21 @@ match request_step:
     case False:
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-        ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
         guaranty_code(driver , ASSURANCE_CODE)
         sleep(5)
-        # #################################### primary info form ##############################################
+        #################### primary info form ####################
         primary_info(driver, NATIONAL_CODE, "1383", "آبان",
                      "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
-        ##################################### Validation ####################################################
+        #################### Validation ####################
         sleep(10)
         exit_button = driver.find_element(
             By.XPATH, '/html/body/div[2]/div/div/div[1]/button')
@@ -56,39 +56,38 @@ match request_step:
         sleep(3)
         next_button(driver)
         sleep(3)
-        ################################## identity_documents #####################################################
+        #################### identity_documents ####################
         Upload_identity_documents(driver, file_path_low_size)
         sleep(5)
         next_button(driver)
-        ################################### Residence_documents ####################################################
+        #################### Residence_documents ####################
         sleep(3)
         Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
                             "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(driver)
-        ################################### job_documents ###########################################################
+        #################### job_documents ####################
         sleep(5)
         Upload_job_documents(
             driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
         sleep(3)
         next_button(driver)
-        #####################################################################################
+        ####################
         input()
 
     case "primary_info_registration__credit_rank":
-
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-        ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        #########################################################################################################
+        #################### Validation ####################
         sleep(10)
         exit_button = driver.find_element(
             By.XPATH, '/html/body/div[2]/div/div/div[1]/button')
@@ -98,111 +97,114 @@ match request_step:
         sleep(3)
         next_button(driver)
         sleep(3)
-        ################################## identity_documents #####################################################
+        #################### identity_documents ####################
         Upload_identity_documents(driver, file_path_low_size)
         sleep(5)
         next_button(driver)
-        ################################### Residence_documents ####################################################
+        #################### Residence_documents ####################
         sleep(3)
         Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
                             "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(driver)
-        ################################### job_documents ###########################################################
+        #################### job_documents ####################
         sleep(5)
         Upload_job_documents(
             driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
         sleep(3)
         next_button(driver)
-        #####################################################################################
+        ####################
         input()
+
     case "assurance_request":
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-        ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        ################################## identity_documents #####################################################
+        #################### identity_documents ####################
         Upload_identity_documents(driver, file_path_low_size)
         sleep(5)
         next_button(driver)
-        ################################### Residence_documents ####################################################
+        #################### Residence_documents ####################
         sleep(3)
         Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
                             "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(driver)
-        ################################### job_documents ###########################################################
+        #################### job_documents ####################
         sleep(5)
         Upload_job_documents(
             driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
         sleep(3)
         next_button(driver)
-        #####################################################################################
+        ####################
         input()
+
     case "info_completion__identity":
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-        ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        ################################### Residence_documents ####################################################
+        #################### Residence_documents ####################
         Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
                             "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(driver)
-        ################################### job_documents ###########################################################
+        #################### job_documents ####################
         sleep(5)
         Upload_job_documents(
             driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
         sleep(3)
         next_button(driver)
-        #####################################################################################
+        ####################
         input()
+
     case "info_completion__residence":
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-       ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        ################################### job_documents ###########################################################
+        #################### job_documents ####################
         sleep(5)
         Upload_job_documents(
             driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
         sleep(3)
         next_button(driver)
-        #####################################################################################
+        ####################
         input()
+
     case "document_check":
         get_url(driver, URL)
         sleep(5)
-        ###################################### login page ####################################################
+        #################### login page ####################
         login(driver, PHONE_NUMBER)
         sleep(5)
-        ####################################### otp code ######################################################
+        #################### otp code ####################
         code = otp_code(driver)
         sleep(5)
-        ######################################## loan ###########################################################
-        ####################################  guaranty request page ###########################################
+        #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        #####################################################################################
+        ####################
         input()

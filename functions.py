@@ -1,12 +1,15 @@
+# Import required libraries
 from selenium.webdriver.common.by import By
 import psycopg2
 from time import sleep
 
 
+# Navigate to specified URL
 def get_url(driver, url):
     driver.get(url)
 
 
+# Handle login with phone number
 def login(driver, Phone_number):
     Phone_number_box = driver.find_element(
         By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[2]/div/div[2]/input')
@@ -17,6 +20,7 @@ def login(driver, Phone_number):
     get_code_button.click()
 
 
+# Handle OTP verification
 def otp_code(driver):
     digit_1 = driver.find_element(By.ID, 'dgs-ui-kit-otp-input-0')
     otp_code = input("please enter your otp code : ")
@@ -24,6 +28,7 @@ def otp_code(driver):
     return otp_code
 
 
+# Handle loan request button clicks
 def loan_request(driver, button_type):
     if button_type == "TOP":
         loan_request_button_top = driver.find_element(
@@ -37,12 +42,14 @@ def loan_request(driver, button_type):
         print("The input is invalid.")
 
 
+# Handle guaranty request button click
 def guaranty_request(driver):
     guaranty_request_button_down = driver.find_element(
         By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]')
     guaranty_request_button_down.click()
 
 
+# Handle guaranty code submission
 def guaranty_code(driver, guaranty_code):
     guaranty_code_box = driver.find_element(
         By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div/div[2]/input')
@@ -57,6 +64,7 @@ def guaranty_code(driver, guaranty_code):
     start_button.click()
 
 
+# Handle birth date selection
 def birth_date(driver, target_year, target_month, target_day):
     months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
               "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
@@ -120,6 +128,7 @@ def birth_date(driver, target_year, target_month, target_day):
     confirm_birth_date_button.click()
 
 
+# Handle primary information form
 def primary_info(driver, national_code, target_year, target_month, target_day, Job_position_option, Organization_option):
     national_code_box = driver.find_element(
         By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div/div[1]/div[2]/input')
@@ -148,6 +157,7 @@ def primary_info(driver, national_code, target_year, target_month, target_day, J
     Information_recording_button.click()
 
 
+# Check if credit is approved for loan
 def is_credit_approved(driver):
     try:
         driver.find_element(
@@ -157,6 +167,7 @@ def is_credit_approved(driver):
         return False
 
 
+# Check if credit is approved for guaranty
 def is_credit_approved_in_guaranty_request(driver):
     try:
         driver.find_element(
@@ -166,12 +177,14 @@ def is_credit_approved_in_guaranty_request(driver):
         return False
 
 
+# Handle next button click
 def next_button(driver):
     next_button = driver.find_element(
         By.XPATH, "//button[div[text()='مرحله بعدی']]")
     next_button.click()
 
 
+# Handle guarantee type selection
 def select_guarantee_type(driver, guarantee_type):
     show_guarantee = driver.find_element(
         By.XPATH, "//button[div[contains(text(), 'مشاهده ضمانت')]]")
@@ -186,6 +199,7 @@ def select_guarantee_type(driver, guarantee_type):
     confirm_garantee.click()
 
 
+# Convert Persian numbers to integers
 def convert_persian_to_int(num_str):
     mapping = {
         '۰': '0',
@@ -209,6 +223,7 @@ def convert_persian_to_int(num_str):
         return 0
 
 
+# Set maximum loan value
 def set_max_value(driver, max_value):
     loan_input = driver.find_element(
         By.XPATH, "//div[contains(@class, 'dgs-ui-kit-relative')]/input")
@@ -227,6 +242,7 @@ def set_max_value(driver, max_value):
         current_value = convert_persian_to_int(current_value_str)
 
 
+# Handle identity document uploads
 def Upload_identity_documents(driver, file_path):
     front_national_cart_input = driver.find_element(
         By.XPATH, "//input[@type='file' and contains(@accept, 'image/png')]")
@@ -241,6 +257,7 @@ def Upload_identity_documents(driver, file_path):
     Birth_certificate_file_inputs[2].send_keys(file_path)
 
 
+# Handle residence document uploads and form
 def Residence_documents(driver, postal_code, Residence_status_type, Province_type, city_type, Residential_address, file_path, Work_address):
     Residence_status = driver.find_element(
         By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div[2]/div/div[2]/input')
@@ -278,6 +295,7 @@ def Residence_documents(driver, postal_code, Residence_status_type, Province_typ
     postal_code_box.send_keys(postal_code)
 
 
+# Handle job document uploads
 def Upload_job_documents(driver, Average_income, file_path):
     Average_income_box = driver.find_element(
         By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[1]/button/div/div[2]/input')
@@ -292,6 +310,7 @@ def Upload_job_documents(driver, Average_income, file_path):
     Document_of_job_upload[1].send_keys(file_path)
 
 
+# Get loan request step from database
 def get_request_step_loan():
     try:
         conn = psycopg2.connect(
@@ -335,6 +354,7 @@ def get_request_step_loan():
         print("disconnect")
 
 
+# Get guaranty request step from database
 def get_request_step_guaranty():
     try:
         conn = psycopg2.connect(
