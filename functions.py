@@ -36,6 +36,21 @@ def loan_request(driver, button_type):
         print("The input is invalid.")
 
 
+def guaranty_request(driver):
+    guaranty_request_button_down = driver.find_element(
+        By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]')
+    guaranty_request_button_down.click()
+
+def guaranty_code(driver , guaranty_code):
+    guaranty_code_box = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[2]/div/div/div[2]/input')
+    guaranty_code_box.send_keys(guaranty_code)
+    sleep(2)
+    guaranty_code_submit_button = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[2]/div/button')
+    guaranty_code_submit_button.click()
+    sleep(3)
+    start_button = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[3]/a/button')
+    start_button.click()
+
 def birth_date(driver, target_year, target_month, target_day):
     months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
               "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
@@ -131,6 +146,14 @@ def is_credit_approved(driver):
     try:
         driver.find_element(
             By.XPATH, "//div[contains(text(), 'مجاز برای دریافت وام')]")
+        return True
+    except:
+        return False
+
+def is_credit_approved_in_guaranty_request(driver):
+    try:
+        driver.find_element(
+            By.XPATH, "//div[contains(text(), 'مجاز برای ضمانت')]")
         return True
     except:
         return False
@@ -247,15 +270,16 @@ def Residence_documents(driver, postal_code, Residence_status_type, Province_typ
         By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[1]/div[1]/div[2]/input')
     postal_code_box.send_keys(postal_code)
 
-def Upload_job_documents(driver ,Average_income , file_path ):
+
+def Upload_job_documents(driver, Average_income, file_path):
     Average_income_box = driver.find_element(
-    By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[1]/button/div/div[2]/input')
+        By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div/div[1]/div[1]/button/div/div[2]/input')
     Average_income_box.click()
     sleep(3)
     select_Average_income = driver.find_element(
-    By.XPATH, f"//button[contains(text(), {Average_income})]")
+        By.XPATH, f"//button[contains(text(), {Average_income})]")
     select_Average_income.click()
     Document_of_job_upload = driver.find_elements(
-    By.XPATH, "//h2[contains(text(), 'بارگذاری تصاویر مدارک شغلی')]/following::input[@type='file']")
+        By.XPATH, "//h2[contains(text(), 'بارگذاری تصاویر مدارک شغلی')]/following::input[@type='file']")
     Document_of_job_upload[0].send_keys(file_path)
     Document_of_job_upload[1].send_keys(file_path)
