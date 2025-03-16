@@ -13,54 +13,7 @@ from selenium.webdriver.chrome.options import Options
 global request_step
 request_step = None
 
-try:
-    # اتصال به دیتابیس PostgreSQL
-    conn = psycopg2.connect(
-        host="db.dgstack.ir",
-        port="5433",
-        database="lend",
-        user="lend_developer",
-        password="!@#develop123"
-    )
-    print("connected")
-
-    cursor = conn .cursor()
-
-    
-    query_request_step_guaranty = """
-    SELECT a.request_step
-    FROM user_user u
-    LEFT JOIN assurance_assurance a ON u.id = a.user_id
-    WHERE u.phone_number = '09332766613'
-      AND u.is_deleted = false
-      AND (a.is_deleted = false)
-	LIMIT 1;
-    """
-
-    query_set_new_user = """
-    UPDATE user_user
-    SET is_deleted = true
-    WHERE phone_number = '09332766613'
-      AND is_deleted = false;
-    """
-
-    cursor.execute(query_request_step_guaranty)
-
-    result = cursor.fetchone()
-
-    if result:
-        request_step = result[0]
-        print(request_step)
-    else:
-        request_step = False
-        print(request_step)
-
-    cursor.close()
-    conn.close()
-
-except:
-    print("disconnect")
-
+request_step = get_request_step_guaranty()
 
 # تنظیمات Chrome
 chrome_options = Options()

@@ -13,56 +13,7 @@ from selenium.webdriver.chrome.options import Options
 global request_step
 request_step = None
 
-try:
-    # اتصال به دیتابیس PostgreSQL
-    conn = psycopg2.connect(
-        host="db.dgstack.ir",
-        port="5433",
-        database="lend",
-        user="lend_developer",
-        password="!@#develop123"
-    )
-    print("connected")
-
-    cursor = conn .cursor()
-
-    query_request_step = """
-    SELECT l.request_step
-    FROM user_user u
-    LEFT JOIN lend_loan l ON u.id = l.user_id
-    WHERE u.phone_number = '09332766613'
-      AND u.is_deleted = false
-      AND (l.is_deleted = false)
-    LIMIT 1;
-    """
-
-    query_set_new_user = """
-    UPDATE user_user
-    SET is_deleted = true
-    WHERE phone_number = '09332766613'
-      AND is_deleted = false;
-    """
-    # user_type = int(
-    #     input("New User Or Old User? Enter a Number 1)New User , 2)Old User :"))
-    # if user_type == 1:
-    #     cursor.execute(query_set_new_user)
-
-    cursor.execute(query_request_step)
-
-    result = cursor.fetchone()
-
-    if result:
-        request_step = result[0]
-        print(request_step)
-    else:
-        request_step = False
-        print(request_step)
-
-    cursor.close()
-    conn.close()
-
-except:
-    print("disconnect")
+request_step = get_request_step_loan()
 
 
 # تنظیمات Chrome
@@ -71,9 +22,8 @@ chrome_options.add_argument('--log-level=3')
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
-service = Service('./chromedriver.exe')
 driver = webdriver.Chrome(
-    service=service,
+    service=Service(ChromeDriverManager().install()),
     options=chrome_options
 )
 file_path_low_size = os.path.abspath("./low_size.png")
