@@ -71,7 +71,7 @@ chrome_options.add_argument('--log-level=3')
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
-service = Service('./chromedriver.exe') 
+service = Service('./chromedriver.exe')
 driver = webdriver.Chrome(
     service=service,
     options=chrome_options
