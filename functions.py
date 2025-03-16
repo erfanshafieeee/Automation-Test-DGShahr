@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+import psycopg2
 from time import sleep
 
 
@@ -41,15 +42,20 @@ def guaranty_request(driver):
         By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]')
     guaranty_request_button_down.click()
 
-def guaranty_code(driver , guaranty_code):
-    guaranty_code_box = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[2]/div/div/div[2]/input')
+
+def guaranty_code(driver, guaranty_code):
+    guaranty_code_box = driver.find_element(
+        By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div/div[2]/input')
     guaranty_code_box.send_keys(guaranty_code)
     sleep(2)
-    guaranty_code_submit_button = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[2]/div/button')
+    guaranty_code_submit_button = driver.find_element(
+        By.XPATH, '/html/body/div[2]/div/div/div[2]/div/button')
     guaranty_code_submit_button.click()
     sleep(3)
-    start_button = driver.find_element(By.XPATH , '/html/body/div[2]/div/div/div[3]/a/button')
+    start_button = driver.find_element(
+        By.XPATH, '/html/body/div[2]/div/div/div[3]/a/button')
     start_button.click()
+
 
 def birth_date(driver, target_year, target_month, target_day):
     months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
@@ -149,6 +155,7 @@ def is_credit_approved(driver):
         return True
     except:
         return False
+
 
 def is_credit_approved_in_guaranty_request(driver):
     try:
@@ -283,3 +290,88 @@ def Upload_job_documents(driver, Average_income, file_path):
         By.XPATH, "//h2[contains(text(), 'بارگذاری تصاویر مدارک شغلی')]/following::input[@type='file']")
     Document_of_job_upload[0].send_keys(file_path)
     Document_of_job_upload[1].send_keys(file_path)
+
+
+def get_request_step_loan():
+    try:
+        conn = psycopg2.connect(
+            host="db.dgstack.ir",
+            port="5433",
+            database="lend",
+            user="lend_developer",
+            password="!@#develop123"
+        )
+        print("connected")
+
+        cursor = conn.cursor()
+
+        query_request_step = """
+        SELECT l.request_step
+        FROM user_user u
+        LEFT JOIN lend_loan l ON u.id = l.user_id
+        WHERE u.phone_number = '09332766613'
+          AND u.is_deleted = false
+          AND (l.is_deleted = false)
+        LIMIT 1;
+        """
+
+        cursor.execute(query_request_step)
+
+        result = cursor.fetchone()
+
+        if result:
+            request_step = result[0]
+            print(request_step)
+            return request_step
+        else:
+            request_step = False
+            print(request_step)
+            return request_step
+
+        cursor.close()
+        conn.close()
+
+    except Exception:
+        print("disconnect")
+
+
+def get_request_step_guaranty():
+    try:
+        conn = psycopg2.connect(
+            host="db.dgstack.ir",
+            port="5433",
+            database="lend",
+            user="lend_developer",
+            password="!@#develop123"
+        )
+        print("connected")
+
+        cursor = conn.cursor()
+
+        query_request_step_guaranty = """
+        SELECT a.request_step
+        FROM user_user u
+        LEFT JOIN assurance_assurance a ON u.id = a.user_id
+        WHERE u.phone_number = '09332766613'
+          AND u.is_deleted = false
+          AND (a.is_deleted = false)
+        LIMIT 1;
+        """
+        cursor.execute(query_request_step_guaranty)
+
+        result = cursor.fetchone()
+
+        if result:
+            request_step = result[0]
+            print(request_step)
+            return request_step
+        else:
+            request_step = False
+            print(request_step)
+            return request_step
+
+        cursor.close()
+        conn.close()
+
+    except Exception:
+        print("disconnect")
