@@ -9,3 +9,5 @@ BO_USERNAME = "test1"
 BO_PASSWORD = "test1"
 BO_LOAN_ID = 10540
 BO_ASSURANCE_ID = 71
+URL = "https://new-lend-alpha.dgstack.ir/login"
+MAX_VALUE = 80000000
