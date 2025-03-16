@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from time import sleep
 from constants import NATIONAL_CODE, MAX_VALUE, POSTAL_CODE, URL, PHONE_NUMBER
@@ -6,6 +7,8 @@ import os
 from functions import *
 import psycopg2
 from psycopg2 import sql
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 
 global request_step
 request_step = None
@@ -62,7 +65,17 @@ except:
     print("disconnect")
 
 
-driver = webdriver.Chrome()
+# تنظیمات Chrome
+chrome_options = Options()
+chrome_options.add_argument('--log-level=3')
+chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+
+
+service = Service('./chromedriver.exe') 
+driver = webdriver.Chrome(
+    service=service,
+    options=chrome_options
+)
 file_path_low_size = os.path.abspath("./low_size.png")
 
 match request_step:
@@ -344,7 +357,3 @@ match request_step:
         auth_button.click()
         #####################################################################################
         input()
-
-
-
-
