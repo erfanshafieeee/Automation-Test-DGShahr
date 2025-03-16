@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 __pycache__/
 *.pyc
@@ -15,4 +16,9 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
+=======
+__pycache__/
+*.py[cod]
+*$py.class
+>>>>>>> 7881d9e (Add:git ignore)
 
