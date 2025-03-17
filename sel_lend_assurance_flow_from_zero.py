@@ -2,11 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from time import sleep
-from constants import NATIONAL_CODE, MAX_VALUE, POSTAL_CODE, URL, PHONE_NUMBER , ASSURANCE_CODE
+from constants import NATIONAL_CODE,  POSTAL_CODE, URL, PHONE_NUMBER, ASSURANCE_CODE
 import os
 from functions import *
-import psycopg2
-from psycopg2 import sql
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
@@ -40,7 +38,7 @@ match request_step:
         #################### guaranty request page ####################
         guaranty_request(driver)
         sleep(3)
-        guaranty_code(driver , ASSURANCE_CODE)
+        guaranty_code(driver, ASSURANCE_CODE)
         sleep(5)
         #################### primary info form ####################
         primary_info(driver, NATIONAL_CODE, "1383", "آبان",
