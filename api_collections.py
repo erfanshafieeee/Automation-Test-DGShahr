@@ -1,28 +1,36 @@
+# Import required libraries
 import requests
 from constants import SERVER, AUTH_TOKEN
 
+# Base API client class that handles common HTTP operations
 class BaseAPIClient:
     def __init__(self):
         self.base_url = SERVER
         self.session = requests.Session()
         self.session.headers.update({'Authorization': AUTH_TOKEN})
     
+    # HTTP GET request
     def get(self, endpoint, params=None):
         return self.session.get(f"{self.base_url}{endpoint}", params=params)
 
+    # HTTP POST request
     def post(self, endpoint, data=None, json=None, files=None, params=None):
         return self.session.post(f"{self.base_url}{endpoint}", data=data, json=json, files=files, params=params)
 
+    # HTTP PUT request
     def put(self, endpoint, data=None):
         return self.session.put(f"{self.base_url}{endpoint}", data=data)
 
+    # HTTP PATCH request
     def patch(self, endpoint, data=None):
         return self.session.patch(f"{self.base_url}{endpoint}", data=data)
 
+    # HTTP DELETE request
     def delete(self, endpoint):
         return self.session.delete(f"{self.base_url}{endpoint}")
 
 
+# API client for assurance related operations
 class AssuranceAPI(BaseAPIClient):
     def get_assurance(self):
         return self.get("/assurance/")
@@ -51,6 +59,7 @@ class AssuranceAPI(BaseAPIClient):
     def post_assurances_validity(self, data, params):
         return self.post("/assurances/validity/", json=data, params=params)
 
+# API client for branch related operations
 class BranchAPI(BaseAPIClient):
     def get_branches(self):
         return self.get("/branch/branches/")
@@ -61,14 +70,17 @@ class BranchAPI(BaseAPIClient):
     def patch_branch(self, id, data):
         return self.patch(f"/branch/branches/{id}/", data=data)
 
+# API client for document related operations
 class DocumentAPI(BaseAPIClient):
     def get_forms(self):
         return self.get("/document/get_forms/")
 
+# API client for file admin operations
 class FileAdminAPI(BaseAPIClient):
     def upload(self, files):
         return self.post("/file-admin/upload/", files=files)
 
+# API client for file operations
 class FileAPI(BaseAPIClient):
     def get_link(self):
         return self.get("/file/get_link/")
@@ -76,10 +88,12 @@ class FileAPI(BaseAPIClient):
     def upload(self, files):
         return self.post("/file/upload/", files=files)
 
+# API client for address related operations
 class AddressAPI(BaseAPIClient):
     def get_address_by_postal_code(self, data):
         return self.post("/get_address_by_postal_code/", json=data)
 
+# API client for loan related operations
 class LoanAPI(BaseAPIClient):
     def get_loans(self):
         return self.get("/loan/")
@@ -270,6 +284,7 @@ class LoanAPI(BaseAPIClient):
     def post_user_validation(self, data):
         return self.post("/loan/user_validation/", json=data)
 
+# API client for messages related operations
 class MessagesAPI(BaseAPIClient):
     def get_messages(self):
         return self.get("/messages/")
@@ -283,6 +298,7 @@ class MessagesAPI(BaseAPIClient):
     def patch_message(self, id, data):
         return self.patch(f"/messages/{id}/", data=data)
 
+# API client for poll related operations
 class PollAPI(BaseAPIClient):
     def post_poll(self, data):
         return self.post("/poll/", json=data)
@@ -296,6 +312,7 @@ class PollAPI(BaseAPIClient):
     def get_poll_question(self, id):
         return self.get(f"/poll/questions/{id}/")
 
+# API client for SMS related operations
 class SMS_API(BaseAPIClient):
     def get_sms_templates(self):
         return self.get("/sms/templates/")
@@ -309,10 +326,12 @@ class SMS_API(BaseAPIClient):
     def patch_sms_template(self, id, data):
         return self.patch(f"/sms/templates/{id}/", data=data)
 
+# API client for states related operations
 class StatesAPI(BaseAPIClient):
     def get_states(self):
         return self.get("/states/")
 
+# API client for TMS related operations
 class TMS_API(BaseAPIClient):
     def get_address_to_location(self, params):
         return self.get("/tms/address_to_location/", params)
@@ -350,10 +369,12 @@ class TMS_API(BaseAPIClient):
     def get_logistics_dashboard(self, params):
         return self.get("/tms/logistics/dashboard/", params)
 
+# API client for transaction related operations
 class TransactionAPI(BaseAPIClient):
     def post_behpardakht(self, data):
         return self.post("/transaction/behpardakht/", json=data)
 
+# API client for user related operations
 class UserAPI(BaseAPIClient):
     def get_login(self):
         return self.get("/user/login/")
