@@ -3,7 +3,7 @@ import sys
 from enum import Enum
 from typing import Dict, List, Callable, Any
 from dataclasses import dataclass
-
+from functions import set_as_new_assurance_user, set_as_new_loan_user
 
 @dataclass
 class TestConfig:
@@ -12,8 +12,9 @@ class TestConfig:
 
 
 class MenuType(Enum):
+    USER_TYPE = "USER_TYPE"
     MAIN = "MAIN"
-    API = "API" 
+    API = "API"
     SELENIUM = "SELENIUM"
 
 
@@ -29,10 +30,16 @@ class MenuItem:
 class MenuConfig:
     def __init__(self):
         self.menus: Dict[MenuType, List[MenuItem]] = {
+            MenuType.USER_TYPE: [
+                MenuItem("init", "\n=== User Type Selection ==="),
+                MenuItem("NEW_USER", "1. New User Test"),
+                MenuItem("EXISTING_USER", "2. Existing User Test"),
+                MenuItem("END", "========================")
+            ],
             MenuType.MAIN: [
                 MenuItem("init", "\n=== Test Execution Menu ==="),
                 MenuItem("API", "1. API Test"),
-                MenuItem("SELENIUM", "2. Selenium Test"), 
+                MenuItem("SELENIUM", "2. Selenium Test"),
                 MenuItem("EXIT", "3. Exit"),
                 MenuItem("END", "========================")
             ],
@@ -47,7 +54,8 @@ class MenuConfig:
             MenuType.SELENIUM: [
                 MenuItem("init", "\n=== Selenium Test Menu ==="),
                 MenuItem("LOAN_SEL", "1. Run Loan Flow Selenium Test"),
-                MenuItem("ASSURANCE_SEL", "2. Run Assurance Flow Selenium Test"),
+                MenuItem("ASSURANCE_SEL",
+                         "2. Run Assurance Flow Selenium Test"),
                 MenuItem("EXIT", "3. Exit"),
                 MenuItem("END", "========================")
             ]
@@ -66,19 +74,27 @@ class TestRunner:
             ),
             "loan_flow_py": TestConfig(
                 message="\nRunning Loan Flow Test...",
-                dispatch=lambda: os.system("pytest test_lend_loan_flow_from_zero.py")
+                dispatch=lambda: os.system(
+                    "pytest test_lend_loan_flow_from_zero.py")
             ),
             "assurance_flow_py": TestConfig(
                 message="\nRunning Assurance Flow Test...",
-                dispatch=lambda: os.system("pytest test_lend_assurance_flow_from_zero.py")
+                dispatch=lambda: os.system(
+                    "pytest test_lend_assurance_flow_from_zero.py")
             ),
             "loan_flow_sel": TestConfig(
                 message="\nRunning Loan Flow Test...",
-                dispatch=lambda: os.system("python sel_lend_loan_flow_from_zero.py")
+                dispatch=lambda: os.system(
+                    "python sel_lend_loan_flow_from_zero.py")
             ),
             "assurance_flow_sel": TestConfig(
                 message="\nRunning Assurance Flow Test...",
-                dispatch=lambda: os.system("python sel_lend_assurance_flow_from_zero.py")
+                dispatch=lambda: os.system(
+                    "python sel_lend_assurance_flow_from_zero.py")
+            ),
+            "new_user_setup": TestConfig(
+                message="\nSetting up new user...",
+                dispatch=lambda: self.setup_new_user()
             )
         }
 
@@ -90,11 +106,16 @@ class TestRunner:
         else:
             print(f"Test {test_name} not found")
 
+    def setup_new_user(self) -> None:
+        set_as_new_assurance_user()
+        set_as_new_loan_user()
+
 
 class Menu:
     def __init__(self):
         self.menu_config = MenuConfig()
         self.test_runner = TestRunner()
+        self.is_new_user = False
 
     def display_menu(self, menu_type: MenuType) -> str:
         menu_items = self.menu_config.get_menu_items(menu_type)
@@ -128,16 +149,26 @@ class Menu:
 
     def run(self) -> None:
         while True:
-            choice = self.display_menu(MenuType.MAIN)
-            if choice == '1':
-                self.handle_api_menu()
-            elif choice == '2':
-                self.handle_selenium_menu()
-            elif choice == '3':
-                print("\nExiting program...")
-                sys.exit(0)
+            user_type_choice = self.display_menu(MenuType.USER_TYPE)
+            if user_type_choice == '1':
+                self.is_new_user = True
+                self.test_runner.run_test("new_user_setup")
+            elif user_type_choice == '2':
+                self.is_new_user = False
             else:
                 print("\nInvalid choice! Please try again.")
+                continue
+            while True:
+                choice = self.display_menu(MenuType.MAIN)
+                if choice == '1':
+                    self.handle_api_menu()
+                elif choice == '2':
+                    self.handle_selenium_menu()
+                elif choice == '3':
+                    print("\n Exit Program ...")
+                    sys.exit(0)
+                else:
+                    print("\nInvalid choice! Please try again.")
 
 
 def main():

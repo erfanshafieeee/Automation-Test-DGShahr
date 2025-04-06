@@ -395,3 +395,79 @@ def get_request_step_guaranty():
 
     except Exception:
         print("disconnect")
+
+def set_as_new_loan_user():
+    try:
+        conn = psycopg2.connect(
+            host="db.dgstack.ir",
+            port="5433",
+            database="lend",
+            user="lend_developer",
+            password="!@#develop123"
+        )
+        print("connected")
+
+        cursor = conn.cursor()
+
+        query_request_step_guaranty = """
+        UPDATE user_user
+        SET is_deleted = true
+        WHERE phone_number ='09332766613';
+        """
+        cursor.execute(query_request_step_guaranty)
+
+        result = cursor.fetchone()
+
+        if result:
+            request_step = result[0]
+            print(request_step)
+            return request_step
+        else:
+            request_step = False
+            print(request_step)
+            return request_step
+
+        cursor.close()
+        conn.close()
+
+    except Exception:
+        print("disconnect")
+
+def set_as_new_assurance_user():
+    try:
+        conn = psycopg2.connect(
+            host="db.dgstack.ir",
+            port="5433",
+            database="lend",
+            user="lend_developer",
+            password="!@#develop123"
+        )
+        print("connected")
+
+        cursor = conn.cursor()
+
+        query_request_step_guaranty = """
+        UPDATE assurance_assurance
+        SET is_deleted = TRUE
+        FROM lend_loan
+        WHERE assurance_assurance.loan_id = lend_loan.id
+        AND lend_loan.id = '10920';;
+        """
+        cursor.execute(query_request_step_guaranty)
+
+        result = cursor.fetchone()
+
+        if result:
+            request_step = result[0]
+            print(request_step)
+            return request_step
+        else:
+            request_step = False
+            print(request_step)
+            return request_step
+
+        cursor.close()
+        conn.close()
+
+    except Exception:
+        print("disconnect")
