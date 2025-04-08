@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Dict, List, Callable, Any
 from dataclasses import dataclass
 from functions import set_as_new_assurance_user, set_as_new_loan_user
+import time
 
 @dataclass
 class TestConfig:
@@ -107,8 +108,8 @@ class TestRunner:
             print(f"Test {test_name} not found")
 
     def setup_new_user(self) -> None:
-        set_as_new_assurance_user()
         set_as_new_loan_user()
+        set_as_new_assurance_user()
 
 
 class Menu:

@@ -405,33 +405,38 @@ def set_as_new_loan_user():
             user="lend_developer",
             password="!@#develop123"
         )
-        print("connected")
-
+        if conn and conn.status == psycopg2.extensions.STATUS_READY:
+            print("Successfully connected to the database.")
+        else:
+            print("Failed to connect to the database.")
         cursor = conn.cursor()
 
-        query_request_step_guaranty = """
+        query_set_as_new_user = """
         UPDATE user_user
         SET is_deleted = true
-        WHERE phone_number ='09332766613';
+        WHERE phone_number = %s;
         """
-        cursor.execute(query_request_step_guaranty)
+        phone_number = '09332766613'
 
-        result = cursor.fetchone()
+        cursor.execute(query_set_as_new_user, (phone_number,))
+        conn.commit()  # Important: Commit the transaction
 
-        if result:
-            request_step = result[0]
-            print(request_step)
-            return request_step
-        else:
-            request_step = False
-            print(request_step)
-            return request_step
+        print("Update successful")
 
-        cursor.close()
-        conn.close()
+    except psycopg2.Error as e:
+        print("Error while updating the database:", e)
 
-    except Exception:
-        print("disconnect")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            if conn.closed:
+                print("Successfully disconnected from the database.")
+            else:
+                print("Disconnection failed.")
+
+
 
 def set_as_new_assurance_user():
     try:
@@ -442,32 +447,35 @@ def set_as_new_assurance_user():
             user="lend_developer",
             password="!@#develop123"
         )
-        print("connected")
-
+        if conn and conn.status == psycopg2.extensions.STATUS_READY:
+            print("Successfully connected to the database.")
+        else:
+            print("Failed to connect to the database.")
         cursor = conn.cursor()
 
-        query_request_step_guaranty = """
+        query_set_as_new_assurance_user = """
         UPDATE assurance_assurance
         SET is_deleted = TRUE
         FROM lend_loan
         WHERE assurance_assurance.loan_id = lend_loan.id
-        AND lend_loan.id = '10920';;
+        AND lend_loan.id = %s;
         """
-        cursor.execute(query_request_step_guaranty)
+        lend_loan_id = '10920'
 
-        result = cursor.fetchone()
+        cursor.execute(query_set_as_new_assurance_user, (lend_loan_id,))
+        conn.commit()  # Important: Commit the transaction
 
-        if result:
-            request_step = result[0]
-            print(request_step)
-            return request_step
-        else:
-            request_step = False
-            print(request_step)
-            return request_step
+        print("Update successful")
 
-        cursor.close()
-        conn.close()
+    except psycopg2.Error as e:
+        print("Error while updating the database:", e)
 
-    except Exception:
-        print("disconnect")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            if conn.closed:
+                print("Successfully disconnected from the database.")
+            else:
+                print("Disconnection failed.")
