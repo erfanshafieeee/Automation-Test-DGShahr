@@ -149,27 +149,29 @@ class Menu:
             print("\nInvalid choice! Please try again.")
 
     def run(self) -> None:
-        while True:
+        user_type_choice = self.display_menu(MenuType.USER_TYPE)
+        while user_type_choice not in ('1', '2'):
+            print("\nInvalid choice! Please try again.")
             user_type_choice = self.display_menu(MenuType.USER_TYPE)
-            if user_type_choice == '1':
-                self.is_new_user = True
-                self.test_runner.run_test("new_user_setup")
-            elif user_type_choice == '2':
-                self.is_new_user = False
+
+        if user_type_choice == '1':
+            self.is_new_user = True
+            self.test_runner.run_test("new_user_setup")
+        elif user_type_choice == '2':
+            self.is_new_user = False
+
+        choice = self.display_menu(MenuType.MAIN)
+        while choice != '3':  
+            if choice == '1':
+                self.handle_api_menu()
+            elif choice == '2':
+                self.handle_selenium_menu()
             else:
                 print("\nInvalid choice! Please try again.")
-                continue
-            while True:
-                choice = self.display_menu(MenuType.MAIN)
-                if choice == '1':
-                    self.handle_api_menu()
-                elif choice == '2':
-                    self.handle_selenium_menu()
-                elif choice == '3':
-                    print("\n Exit Program ...")
-                    sys.exit(0)
-                else:
-                    print("\nInvalid choice! Please try again.")
+            choice = self.display_menu(MenuType.MAIN)
+
+        print("\n Exit Program ...")
+        sys.exit(0)
 
 
 def main():
