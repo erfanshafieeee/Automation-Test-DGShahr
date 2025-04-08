@@ -320,7 +320,10 @@ def get_request_step_loan():
             user="lend_developer",
             password="!@#develop123"
         )
-        print("connected")
+        if conn and conn.status == psycopg2.extensions.STATUS_READY:
+            print("Successfully connected to the database.")
+        else:
+            print("Failed to connect to the database.")
 
         cursor = conn.cursor()
 
@@ -347,11 +350,19 @@ def get_request_step_loan():
             print(request_step)
             return request_step
 
-        cursor.close()
-        conn.close()
+    except psycopg2.Error as e:
+        print("Error while updating the database:", e)
 
-    except Exception:
-        print("disconnect")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            if conn.closed:
+                print("Successfully disconnected from the database.")
+            else:
+                print("Disconnection failed.")
+
 
 
 # Get guaranty request step from database
@@ -364,7 +375,10 @@ def get_request_step_guaranty():
             user="lend_developer",
             password="!@#develop123"
         )
-        print("connected")
+        if conn and conn.status == psycopg2.extensions.STATUS_READY:
+            print("Successfully connected to the database.")
+        else:
+            print("Failed to connect to the database.")
 
         cursor = conn.cursor()
 
@@ -390,11 +404,19 @@ def get_request_step_guaranty():
             print(request_step)
             return request_step
 
-        cursor.close()
-        conn.close()
+    except psycopg2.Error as e:
+        print("Error while updating the database:", e)
 
-    except Exception:
-        print("disconnect")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            if conn.closed:
+                print("Successfully disconnected from the database.")
+            else:
+                print("Disconnection failed.")
+
 
 def set_as_new_loan_user():
     try:
