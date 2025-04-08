@@ -303,4 +303,4 @@ match request_step:
             By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
         auth_button.click()
         ####################
-        input()
+        sleep(10)

@@ -205,4 +205,4 @@ match request_step:
         guaranty_request(driver)
         sleep(3)
         ####################
-        input()
+        sleep(10)
