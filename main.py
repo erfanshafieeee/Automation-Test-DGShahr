@@ -49,7 +49,7 @@ class MenuConfig:
                 MenuItem("USER_LOGIN", "1. Run User Login Test (Required First)"),
                 MenuItem("LOAN_TEST", "2. Run Loan Flow API Test"),
                 MenuItem("ASSURANCE_TEST", "3. Run Assurance Flow API Test"),
-                MenuItem("EXIT_API", "4. Exit"),
+                MenuItem("BACK_API", "4. Back"),
                 MenuItem("END", "========================")
             ],
             MenuType.SELENIUM: [
@@ -57,7 +57,7 @@ class MenuConfig:
                 MenuItem("LOAN_SEL", "1. Run Loan Flow Selenium Test"),
                 MenuItem("ASSURANCE_SEL",
                          "2. Run Assurance Flow Selenium Test"),
-                MenuItem("EXIT", "3. Exit"),
+                MenuItem("BACK_SEL", "3. Back"),
                 MenuItem("END", "========================")
             ]
         }
