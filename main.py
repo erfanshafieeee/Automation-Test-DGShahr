@@ -41,7 +41,8 @@ class MenuConfig:
                 MenuItem("init", "\n=== Test Execution Menu ==="),
                 MenuItem("API", "1. API Test"),
                 MenuItem("SELENIUM", "2. Selenium Test"),
-                MenuItem("EXIT", "3. Exit"),
+                MenuItem("BACK", "3. Back"),
+                MenuItem("EXIT", "4. Exit"),
                 MenuItem("END", "========================")
             ],
             MenuType.API: [
@@ -147,8 +148,8 @@ class Menu:
             print("\nReturning to main menu...")
         else:
             print("\nInvalid choice! Please try again.")
-
-    def run(self) -> None:
+    
+    def handle_user_type_menu(self) -> None:
         user_type_choice = self.display_menu(MenuType.USER_TYPE)
         while user_type_choice not in ('1', '2'):
             print("\nInvalid choice! Please try again.")
@@ -160,12 +161,16 @@ class Menu:
         elif user_type_choice == '2':
             self.is_new_user = False
 
+    def run(self) -> None:
+        self.handle_user_type_menu()
         choice = self.display_menu(MenuType.MAIN)
-        while choice != '3':  
+        while choice != '4':  
             if choice == '1':
                 self.handle_api_menu()
             elif choice == '2':
                 self.handle_selenium_menu()
+            elif choice == '3':
+                self.handle_user_type_menu()
             else:
                 print("\nInvalid choice! Please try again.")
             choice = self.display_menu(MenuType.MAIN)
