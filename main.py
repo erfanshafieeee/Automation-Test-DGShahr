@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from functions import set_as_new_assurance_user, set_as_new_loan_user
 import time
 
+
 @dataclass
 class TestConfig:
     message: str
@@ -47,10 +48,9 @@ class MenuConfig:
             ],
             MenuType.API: [
                 MenuItem("init", "\n=== API Test Menu ==="),
-                MenuItem("USER_LOGIN", "1. Run User Login Test (Required First)"),
-                MenuItem("LOAN_TEST", "2. Run Loan Flow API Test"),
-                MenuItem("ASSURANCE_TEST", "3. Run Assurance Flow API Test"),
-                MenuItem("BACK_API", "4. Back"),
+                MenuItem("LOAN_TEST", "1. Run Loan Flow API Test"),
+                MenuItem("ASSURANCE_TEST", "2. Run Assurance Flow API Test"),
+                MenuItem("BACK_API", "3. Back"),
                 MenuItem("END", "========================")
             ],
             MenuType.SELENIUM: [
@@ -126,14 +126,15 @@ class Menu:
         return input(f"\nEnter your choice (1-{len(menu_items)- 2}): ")
 
     def handle_api_menu(self) -> None:
+        # First run user login test
+        self.test_runner.run_test("user_login_py")
+
         choice = self.display_menu(MenuType.API)
         if choice == '1':
-            self.test_runner.run_test("user_login_py")
-        elif choice == '2':
             self.test_runner.run_test("loan_flow_py")
-        elif choice == '3':
+        elif choice == '2':
             self.test_runner.run_test("assurance_flow_py")
-        elif choice == '4':
+        elif choice == '3':
             print("\nReturning to main menu...")
         else:
             print("\nInvalid choice! Please try again.")
@@ -148,7 +149,7 @@ class Menu:
             print("\nReturning to main menu...")
         else:
             print("\nInvalid choice! Please try again.")
-    
+
     def handle_user_type_menu(self) -> None:
         user_type_choice = self.display_menu(MenuType.USER_TYPE)
         while user_type_choice not in ('1', '2'):
@@ -164,7 +165,7 @@ class Menu:
     def run(self) -> None:
         self.handle_user_type_menu()
         choice = self.display_menu(MenuType.MAIN)
-        while choice != '4':  
+        while choice != '4':
             if choice == '1':
                 self.handle_api_menu()
             elif choice == '2':
