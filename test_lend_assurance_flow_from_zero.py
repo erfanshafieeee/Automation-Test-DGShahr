@@ -3,6 +3,7 @@ from constants import BIRTH_DATE, NATIONAL_CODE, ASSURANCE_CODE
 import time
 import pytest
 from common_functions import upload_image
+from functions import set_pro_user
 
 
 assurance_id = 0
@@ -121,8 +122,13 @@ def test_credit_rank_data():
         response = AssuranceAPI().get_assurance_request(assurance_id, "primary_info_registration__credit_rank")
         assert response.status_code == 200
         if response.json()["data"]["credit_status"] is not None:
-            break
+            if response.json()["data"]["credit_status"]=="not_allowed":
+                set_pro_user()
+            else:
+                break
         time.sleep(3)
+    
+    
 
 def test_complete_credit_rank_step():
     data = {}

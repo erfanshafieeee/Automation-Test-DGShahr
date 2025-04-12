@@ -501,3 +501,46 @@ def set_as_new_assurance_user():
                 print("Successfully disconnected from the database.")
             else:
                 print("Disconnection failed.")
+
+def set_pro_user():
+    try:
+        conn = psycopg2.connect(
+            host="db.dgstack.ir",
+            port="5433",
+            database="lend",
+            user="lend_developer",
+            password="!@#develop123"
+        )
+        if conn and conn.status == psycopg2.extensions.STATUS_READY:
+            print("Successfully connected to the database.")
+        else:
+            print("Failed to connect to the database.")
+        cursor = conn.cursor()
+
+        query_set_as_pro_user = """
+        UPDATE assurance_assurance
+        SET credit_rank = 'A', credit_score = 660 , status = 'document_check'
+        FROM user_user
+        WHERE assurance_assurance.user_id = user_user.id
+        AND user_user.phone_number = '09332766613';
+        """
+        phone_number = '09332766613'
+
+        cursor.execute(query_set_as_pro_user, (phone_number,))
+        conn.commit()  # Important: Commit the transaction
+
+        print("Update successful")
+
+    except psycopg2.Error as e:
+        print("Error while updating the database:", e)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            if conn.closed:
+                print("Successfully disconnected from the database.")
+            else:
+                print("Disconnection failed.")
+
