@@ -88,7 +88,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "primary_info_registration__auth_otp":
         get_url(driver, URL)
@@ -149,7 +149,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "primary_info_registration__credit_rank":
         get_url(driver, URL)
@@ -200,7 +200,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
     case "loan_request":
         get_url(driver, URL)
         sleep(5)
@@ -234,7 +234,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
     case "info_completion__identity":
         get_url(driver, URL)
         sleep(5)
@@ -263,7 +263,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
     case "info_completion__residence":
         get_url(driver, URL)
         sleep(5)
@@ -286,7 +286,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
     case "info_completion__branch":
         get_url(driver, URL)
         sleep(5)

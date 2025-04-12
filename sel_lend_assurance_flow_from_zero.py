@@ -71,7 +71,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "primary_info_registration__credit_rank":
         get_url(driver, URL)
@@ -112,7 +112,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "assurance_request":
         get_url(driver, URL)
@@ -143,7 +143,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "info_completion__identity":
         get_url(driver, URL)
@@ -169,7 +169,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "info_completion__residence":
         get_url(driver, URL)
@@ -190,7 +190,7 @@ match request_step:
         sleep(3)
         next_button(driver)
         ####################
-        input()
+        sleep(10)
 
     case "document_check":
         get_url(driver, URL)
