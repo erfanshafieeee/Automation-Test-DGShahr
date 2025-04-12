@@ -1,5 +1,6 @@
 # Import required libraries
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 import psycopg2
 from time import sleep
 
@@ -170,11 +171,16 @@ def is_credit_approved(driver):
 # Check if credit is approved for guaranty
 def is_credit_approved_in_guaranty_request(driver):
     try:
-        driver.find_element(
-            By.XPATH, "//div[contains(text(), 'مجاز برای ضمانت')]")
+        driver.find_element(By.XPATH, "//div[contains(text(), 'مجاز برای ضمانت')]")
         return True
-    except:
-        return False
+    except NoSuchElementException:
+        try:
+            driver.find_element(By.XPATH, "//div[contains(text(), 'عدم امکان ضمانت')]")
+            set_pro_user()
+            driver.refresh()
+            return True
+        except NoSuchElementException:
+            return False
 
 
 # Handle next button click
