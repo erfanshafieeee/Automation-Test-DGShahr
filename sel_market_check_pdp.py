@@ -11,7 +11,6 @@ from selenium.webdriver.chrome.options import Options
 import random
 
 # ── CONFIG ───────────────────────────────────────────────────────────
-# the 10 category URLs you provided:
 CATEGORY_URLS = [
     "https://marketplace-staging.dgstack.ir/plp/category/2240",
     "https://marketplace-staging.dgstack.ir/plp/category/2236",
@@ -27,39 +26,39 @@ PRODUCTS_PER_CATEGORY = 2   # how many random products to test per category
 # ── END CONFIG ────────────────────────────────────────────────────────
 
 # initialize Chrome WebDriver
-chrome_options = Options()
-chrome_options.add_argument('--log-level=3')
-chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+opts = Options()
+opts.add_argument('--log-level=3')
+opts.add_experimental_option('excludeSwitches', ['enable-logging'])
 driver = webdriver.Chrome(
     service=Service(ChromeDriverManager().install()),
-    options=chrome_options
+    options=opts
 )
 wait = WebDriverWait(driver, 10)
 
-# ── 1) LOGIN ─────────────────────────────────────────────────────────
-get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
-sleep(2)
+# # ── 1) LOGIN ─────────────────────────────────────────────────────────
+# get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
+# sleep(2)
 
-# open login modal
-driver.find_element(
-    By.XPATH,
-    "//button[.//div[contains(@class,'mgc_user_2_line')]]"
-).click()
+# # open login modal
+# driver.find_element(
+#     By.XPATH,
+#     "//button[.//div[contains(@class,'mgc_user_2_line')]]"
+# ).click()
 
-# enter phone number and request OTP
-wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input#phone")))\
-    .send_keys(PHONE_NUMBER)
-driver.find_element(
-    By.CSS_SELECTOR,
-    "button.dgs-ui-kit-bg-primary-500.button-medium-icon"
-).click()
-sleep(2)
+# # enter phone & request OTP
+# wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input#phone")))\
+#     .send_keys(PHONE_NUMBER)
+# driver.find_element(
+#     By.CSS_SELECTOR,
+#     "button.dgs-ui-kit-bg-primary-500.button-medium-icon"
+# ).click()
+# sleep(2)
 
-# enter OTP code
-wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#dgs-ui-kit-otp-input-0")))\
-    .send_keys(input("Enter OTP code: "))
+# # enter OTP
+# wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#dgs-ui-kit-otp-input-0")))\
+#     .send_keys(input("Enter OTP code: "))
 
-# ensure shop page is loaded
+# ensure shop loaded
 get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
 wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
@@ -72,40 +71,43 @@ failed_products = []
 total_images = 0
 loaded_images = 0
 failed_images = 0
-failure_details = []  # list of (product_url, image_src)
+# now record tuples of (category, product_url, img_src)
+failure_details = []
 
 for cat_url in CATEGORY_URLS:
-    # navigate to category URL
+    # navigate to category
     get_url(driver, cat_url)
     wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
     sleep(1)
 
-    # scroll to bottom to load all products
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    sleep(1)
+    # infinite scroll to load all product links
+    product_links = set()
+    prev_count = 0
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(1)
+        anchors = driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+        for a in anchors:
+            href = a.get_attribute('href')
+            if href:
+                product_links.add(href)
+        if len(product_links) == prev_count:
+            break
+        prev_count = len(product_links)
 
-    # collect all product links on this category page
-    anchors = driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
-    product_links = []
-    for a in anchors:
-        href = a.get_attribute('href')
-        if href and href not in product_links:
-            product_links.append(href)
-
-    # pick random products from this category
+    product_links = list(product_links)
     to_test = random.sample(product_links, min(PRODUCTS_PER_CATEGORY, len(product_links)))
-    print(f"🔖 Category: {cat_url} — testing {len(to_test)} products")
+    print(f"🔖 Category {cat_url} → found {len(product_links)} products, testing {len(to_test)}")
 
     for url in to_test:
         total_tested += 1
         try:
             get_url(driver, url)
         except:
-            failed_products.append((url, "unreachable"))
+            failed_products.append((cat_url, url, "unreachable"))
             continue
 
         wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
-        # trigger lazy-load
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         sleep(0.5)
 
@@ -114,12 +116,10 @@ for cat_url in CATEGORY_URLS:
 
         for img in imgs:
             src = img.get_attribute('src') or ""
-            # skip trustseal logo
             if "trustseal.enamad.ir" in src:
                 continue
 
             total_images += 1
-            # scroll image into view
             driver.execute_script("arguments[0].scrollIntoView({block:'center'});", img)
             try:
                 wait.until(lambda d: d.execute_script(
@@ -129,24 +129,25 @@ for cat_url in CATEGORY_URLS:
             except:
                 failed_images += 1
                 product_ok = False
-                failure_details.append((url, src))
-                print(f"⚠️ Failed image: {src} on {url}")
+                # record category, product and src
+                failure_details.append((cat_url, url, src))
+                print(f"⚠️ Failed image in category [{cat_url}], product [{url}]: {src}")
 
         if product_ok:
             ok_products += 1
             print(f"✅ Product OK: {url}")
         else:
-            failed_products.append((url, "some images failed"))
+            failed_products.append((cat_url, url, "images failed"))
 
 # ── 3) PRINT SUMMARY ──────────────────────────────────────────────────
 print("\n--- SUMMARY ---")
 print(f"Categories scanned:       {total_categories}")
 print(f"Products tested:          {total_tested}")
 if total_tested:
-    print(f"✔️ Products all-images-OK: {ok_products} ({ok_products/total_tested*100:.1f}%)")
-    print(f"❌ Products with issues:   {len(failed_products)} ({len(failed_products)/total_tested*100:.1f}%)")
+    print(f"✔️ Products OK:           {ok_products} ({ok_products/total_tested*100:.1f}%)")
+    print(f"❌ Products issues:       {len(failed_products)} ({len(failed_products)/total_tested*100:.1f}%)")
 else:
-    print("⚠️ No products were tested — check CATEGORY_URLS")
+    print("⚠️ No products were tested — check CATEGORY_URLS or login state")
 
 print(f"\nTotal images checked:     {total_images}")
 if total_images:
@@ -156,9 +157,9 @@ else:
     print("⚠️ No images were found — check selectors")
 
 if failure_details:
-    print("\nFailed image details:")
-    for prod, src in failure_details:
-        print(f" - {src} on {prod}")
+    print("\nDetailed failures:")
+    for category, prod, src in failure_details:
+        print(f" - Category [{category}] → Product [{prod}] → Image [{src}]")
 
 # ── 4) KEEP BROWSER OPEN FOR INSPECTION ───────────────────────────────
 input("\nPress Enter to exit and close browser...")
