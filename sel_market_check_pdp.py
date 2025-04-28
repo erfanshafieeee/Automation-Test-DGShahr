@@ -10,145 +10,156 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import random
 
-# number of products to test, adjust as needed
-TEST_COUNT = 20
+# ── CONFIG ───────────────────────────────────────────────────────────
+# the 10 category URLs you provided:
+CATEGORY_URLS = [
+    "https://marketplace-staging.dgstack.ir/plp/category/2240",
+    "https://marketplace-staging.dgstack.ir/plp/category/2236",
+    "https://marketplace-staging.dgstack.ir/plp?category_id=2316",
+    "https://marketplace-staging.dgstack.ir/plp/category/2209",
+    "https://marketplace-staging.dgstack.ir/plp/category/2763",
+    "https://marketplace-staging.dgstack.ir/plp?category_id=2482",
+    "https://marketplace-staging.dgstack.ir/plp?category_id=2451",
+    "https://marketplace-staging.dgstack.ir/plp/category/2367",
+    "https://marketplace-staging.dgstack.ir/plp/category/2478",
+]
+PRODUCTS_PER_CATEGORY = 2   # how many random products to test per category
+# ── END CONFIG ────────────────────────────────────────────────────────
 
-# Configure ChromeOptions to reduce logging noise
+# initialize Chrome WebDriver
 chrome_options = Options()
 chrome_options.add_argument('--log-level=3')
 chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-
-# Initialize WebDriver
 driver = webdriver.Chrome(
     service=Service(ChromeDriverManager().install()),
     options=chrome_options
 )
+wait = WebDriverWait(driver, 10)
 
-# 1) Navigate to the shop page and log in
+# ── 1) LOGIN ─────────────────────────────────────────────────────────
 get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
-sleep(3)
+sleep(2)
 
-login_button = driver.find_element(
+# open login modal
+driver.find_element(
     By.XPATH,
     "//button[.//div[contains(@class,'mgc_user_2_line')]]"
-)
-login_button.click()
+).click()
 
-phone_input = driver.find_element(By.XPATH, "//input[@id='phone']")
-phone_input.send_keys(PHONE_NUMBER)
-
-phone_button = driver.find_element(
+# enter phone number and request OTP
+wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "input#phone")))\
+    .send_keys(PHONE_NUMBER)
+driver.find_element(
     By.CSS_SELECTOR,
     "button.dgs-ui-kit-bg-primary-500.button-medium-icon"
-)
-phone_button.click()
-sleep(3)
+).click()
+sleep(2)
 
-otp_input = driver.find_element(By.XPATH, "//input[@id='dgs-ui-kit-otp-input-0']")
-otp_code = input("Enter OTP code: ")
-otp_input.send_keys(otp_code)
+# enter OTP code
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#dgs-ui-kit-otp-input-0")))\
+    .send_keys(input("Enter OTP code: "))
 
-# Return to shop page and wait for full load
+# ensure shop page is loaded
 get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
-WebDriverWait(driver, 10).until(
-    lambda d: d.execute_script("return document.readyState") == "complete"
-)
+wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-# 2) Discover product URLs by scrolling the shop page
-product_links = set()
-last_count = 0
-
-while True:
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    sleep(1)
-    anchors = driver.find_elements(By.CSS_SELECTOR, 'a[href*="/product/"]')
-    for a in anchors:
-        product_links.add(a.get_attribute('href'))
-    # stop when we have enough links or no new ones
-    if len(product_links) >= TEST_COUNT or len(product_links) == last_count:
-        break
-    last_count = len(product_links)
-
-# pick up to TEST_COUNT random product URLs
-to_test = random.sample(list(product_links), min(TEST_COUNT, len(product_links)))
-total_urls = len(to_test)
-
-# Initialize statistics
-ok_urls = 0
-failed_image_pages = []
-unreachable_pages = []
+# ── 2) ITERATE CATEGORIES & TEST PRODUCTS ────────────────────────────
+total_categories = len(CATEGORY_URLS)
+total_tested = 0
+ok_products = 0
+failed_products = []
 
 total_images = 0
 loaded_images = 0
 failed_images = 0
 failure_details = []  # list of (product_url, image_src)
 
-# 3) Iterate over each random product URL and check images
-for url in to_test:
-    try:
-        get_url(driver, url)
-    except Exception:
-        unreachable_pages.append(url)
-        print(f"⚠️ Page unreachable: {url}")
-        continue
+for cat_url in CATEGORY_URLS:
+    # navigate to category URL
+    get_url(driver, cat_url)
+    wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
+    sleep(1)
 
-    WebDriverWait(driver, 10).until(
-        lambda d: d.execute_script("return document.readyState") == "complete"
-    )
-
+    # scroll to bottom to load all products
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     sleep(1)
 
-    images = driver.find_elements(By.TAG_NAME, "img")
-    page_failed = False
+    # collect all product links on this category page
+    anchors = driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+    product_links = []
+    for a in anchors:
+        href = a.get_attribute('href')
+        if href and href not in product_links:
+            product_links.append(href)
 
-    for img in images:
-        src = img.get_attribute('src')
-        # skip trustseal/enamad logo images
-        if "trustseal.enamad.ir" in src:
+    # pick random products from this category
+    to_test = random.sample(product_links, min(PRODUCTS_PER_CATEGORY, len(product_links)))
+    print(f"🔖 Category: {cat_url} — testing {len(to_test)} products")
+
+    for url in to_test:
+        total_tested += 1
+        try:
+            get_url(driver, url)
+        except:
+            failed_products.append((url, "unreachable"))
             continue
 
-        total_images += 1
-        driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", img
-        )
+        wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
+        # trigger lazy-load
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(0.5)
 
-        try:
-            WebDriverWait(driver, 5).until(
-                lambda d: d.execute_script(
-                    "return arguments[0].complete && arguments[0].naturalWidth > 0;",
-                    img
-                )
-            )
-            loaded_images += 1
-        except:
-            failed_images += 1
-            page_failed = True
-            failure_details.append((url, src))
-            print(f"⚠️ Failed to load image on {url}: {src}")
+        imgs = driver.find_elements(By.TAG_NAME, "img")
+        product_ok = True
 
-    if page_failed:
-        failed_image_pages.append(url)
-    else:
-        ok_urls += 1
-        print(f"✅ All images on {url} loaded successfully")
+        for img in imgs:
+            src = img.get_attribute('src') or ""
+            # skip trustseal logo
+            if "trustseal.enamad.ir" in src:
+                continue
 
-# 4) Print summary statistics
+            total_images += 1
+            # scroll image into view
+            driver.execute_script("arguments[0].scrollIntoView({block:'center'});", img)
+            try:
+                wait.until(lambda d: d.execute_script(
+                    "return arguments[0].complete && arguments[0].naturalWidth > 0;", img
+                ))
+                loaded_images += 1
+            except:
+                failed_images += 1
+                product_ok = False
+                failure_details.append((url, src))
+                print(f"⚠️ Failed image: {src} on {url}")
+
+        if product_ok:
+            ok_products += 1
+            print(f"✅ Product OK: {url}")
+        else:
+            failed_products.append((url, "some images failed"))
+
+# ── 3) PRINT SUMMARY ──────────────────────────────────────────────────
 print("\n--- SUMMARY ---")
-print(f"Requested tests:                {total_urls}")
-print(f"✔️  OK pages:                   {ok_urls} ({ok_urls/total_urls*100:.1f}%)")
-print(f"❌  Pages w/ image failures:    {len(failed_image_pages)} ({len(failed_image_pages)/total_urls*100:.1f}%)")
-print(f"⚠️  Unreachable pages:          {len(unreachable_pages)} ({len(unreachable_pages)/total_urls*100:.1f}%)\n")
+print(f"Categories scanned:       {total_categories}")
+print(f"Products tested:          {total_tested}")
+if total_tested:
+    print(f"✔️ Products all-images-OK: {ok_products} ({ok_products/total_tested*100:.1f}%)")
+    print(f"❌ Products with issues:   {len(failed_products)} ({len(failed_products)/total_tested*100:.1f}%)")
+else:
+    print("⚠️ No products were tested — check CATEGORY_URLS")
 
-print(f"Total images checked:           {total_images}")
-print(f"✅  Loaded images:              {loaded_images} ({loaded_images/total_images*100:.1f}%)")
-print(f"⚠️  Failed images:              {failed_images} ({failed_images/total_images*100:.1f}%)\n")
+print(f"\nTotal images checked:     {total_images}")
+if total_images:
+    print(f"✅ Loaded images:         {loaded_images} ({loaded_images/total_images*100:.1f}%)")
+    print(f"⚠️ Failed images:         {failed_images} ({failed_images/total_images*100:.1f}%)")
+else:
+    print("⚠️ No images were found — check selectors")
 
 if failure_details:
-    print("Images that failed to load:")
-    for product_url, img_src in failure_details:
-        print(f" - {product_url} -> {img_src}")
+    print("\nFailed image details:")
+    for prod, src in failure_details:
+        print(f" - {src} on {prod}")
 
-# 5) Keep the browser open for manual inspection if needed
-input("Press Enter to exit and close the browser...")
+# ── 4) KEEP BROWSER OPEN FOR INSPECTION ───────────────────────────────
+input("\nPress Enter to exit and close browser...")
 driver.quit()
