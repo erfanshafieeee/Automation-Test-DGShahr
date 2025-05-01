@@ -12,20 +12,29 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
 # ── CONFIG ───────────────────────────────────────────────────────────
-CATEGORY_URL = "https://marketplace-staging.dgstack.ir/plp/category/2209"
+# Directly target this product instead of scanning a category
+PRODUCT_URL = "https://marketplace-staging.dgstack.ir/product/PFFDCPA"
 # ── END CONFIG ────────────────────────────────────────────────────────
 
+# Set up Chrome options
 opts = Options()
 opts.add_argument('--log-level=3')
 opts.add_experimental_option('excludeSwitches', ['enable-logging'])
+# Allow remote origins for Chrome 135+
+opts.add_argument('--remote-allow-origins=*')
+# Uncomment if you want headless mode
+# opts.add_argument('--headless')
+
 driver = webdriver.Chrome(
     service=Service(ChromeDriverManager().install()),
     options=opts
 )
 wait = WebDriverWait(driver, 10)
 
-
 def login():
+    """
+    Logs in using PHONE_NUMBER and OTP via the staging site.
+    """
     get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
     wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
@@ -46,44 +55,30 @@ def login():
     sleep(2)
 
     otp_in = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#dgs-ui-kit-otp-input-0")))
-    otp_in.send_keys(input("Enter OTP code: "))
+    otp = input("Enter OTP code: ")
+    otp_in.send_keys(otp)
     sleep(5)
+    # Ensure we're back on the shop dashboard after login
     get_url(driver, "https://marketplace-staging.dgstack.ir/shop")
     wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
     print("✅ Logged in successfully")
 
 
-def collect_all_products(cat_url: str) -> list[str]:
-    get_url(driver, cat_url)
-    wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
-    sleep(1)
-    links = set()
-    prev = 0
-    while True:
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        sleep(1)
-        anchors = driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
-        for a in anchors:
-            href = a.get_attribute('href')
-            if href:
-                links.add(href)
-        if len(links) == prev:
-            break
-        prev = len(links)
-    return list(links)
-
-
 def add_to_cart_simple(product_url: str) -> bool:
+    """
+    Navigate to the given product URL, skip if variants exist,
+    click Add to Cart, and confirm via modal.
+    """
     get_url(driver, product_url)
     wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
     sleep(0.5)
 
-    # skip variants
+    # Skip products requiring variant selection
     if driver.find_elements(By.CSS_SELECTOR, "select, .variant-selector, .product-options"):
         print(f"⚠️ Skipping variant-selection product: {product_url}")
         return False
 
-    # find all add-to-cart buttons
+    # Locate the Add to Cart button
     buttons = driver.find_elements(
         By.XPATH,
         "//button[.//div[normalize-space(text())='افزودن به سبد خرید']]"
@@ -96,7 +91,7 @@ def add_to_cart_simple(product_url: str) -> bool:
     driver.execute_script("arguments[0].scrollIntoView(true);", btn)
     btn.click()
 
-    # confirm via modal text
+    # Wait for confirmation modal
     try:
         wait.until(EC.visibility_of_element_located((
             By.XPATH,
@@ -110,21 +105,25 @@ def add_to_cart_simple(product_url: str) -> bool:
 
 
 def proceed_to_payment():
-    # open cart
+    """
+    Opens the cart, fills identity info, and navigates through
+    the purchase to reach the payment gateway.
+    """
+    # Open the cart
     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.mgc_shopping_cart_2_line"))).click()
     wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-    # ثبت سفارش
+    # Click 'ثبت سفارش'
     wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "//button[.//div[normalize-space(text())='ثبت سفارش']]"
     ))).click()
     print("📝 ثبت سفارش clicked")
 
-    # identity form
+    # Fill identity form
     wait.until(EC.element_to_be_clickable((By.NAME, "first_name"))).send_keys("عرفان")
     driver.find_element(By.NAME, "last_name").send_keys("شفیعی")
-    # click label for 'آقا'
+    # Select 'آقا'
     male_label = wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "//label[.//div[normalize-space(text())='آقا']]"
@@ -137,20 +136,20 @@ def proceed_to_payment():
     ))).click()
     print("📝 Identity submitted")
 
-    # ثبت سفارش again
+    # Click 'ثبت سفارش' again
     wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "//button[.//div[normalize-space(text())='ثبت سفارش']]"
     ))).click()
 
-    # ادامه فرآیند خرید
+    # Continue process
     wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "//button[.//div[normalize-space(text())='ادامه فرآیند خرید']]"
     ))).click()
     print("➡️ ادامه فرآیند خرید clicked")
 
-    # پرداخت
+    # Click 'پرداخت'
     wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "//button[.//div[normalize-space(text())='پرداخت']]"
@@ -162,28 +161,18 @@ def proceed_to_payment():
 def main_test():
     login()
 
-    # use the one reliable category
-    print(f"> Using category: {CATEGORY_URL}")
-    products = collect_all_products(CATEGORY_URL)
-    random.shuffle(products)
-
-    for prod in products:
-        print(f"→ Trying product: {prod}")
-        if add_to_cart_simple(prod):
-            print("✅ Added to cart.")
-            proceed_to_payment()
-            sleep(5)
-            current = driver.current_url
-            if current.startswith("https://sep.shaparak.ir/OnlinePG/OnlinePG"):
-                print("🎉 TEST PASSED – reached payment gateway")
-            else:
-                print(f"❌ TEST FAILED – landed on: {current}")
-            break
+    print(f"> Buying product: {PRODUCT_URL}")
+    if add_to_cart_simple(PRODUCT_URL):
+        print("✅ Added to cart.")
+        proceed_to_payment()
+        sleep(5)
+        current = driver.current_url
+        if current.startswith("https://sep.shaparak.ir/OnlinePG/OnlinePG"):
+            print("🎉 TEST PASSED – reached payment gateway")
         else:
-            print("⚠️ Skipped product")
-
+            print(f"❌ TEST FAILED – landed on: {current}")
     else:
-        print("❌ No eligible product found in this category; aborting.")
+        print("❌ Failed to add product to cart; aborting.")
 
     input("Press Enter to finish…")
     driver.quit()
