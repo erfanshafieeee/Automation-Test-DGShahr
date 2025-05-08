@@ -68,30 +68,37 @@ class MarketplaceTester:
 
     def _collect_product_links(self, category_url: str) -> List[str]:
         """
-        Scrolls through the category page to collect all product URLs.
+        Loads all paginated product pages in a category and collects product URLs.
         """
-        get_url(self.driver, category_url)
-        self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
-        sleep(1)
-
         links = set()
-        prev_count = 0
-
+        page = 1
+    
         while True:
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # Append page parameter
+            if "?" in category_url:
+                url = f"{category_url}&p={page}"
+            else:
+                url = f"{category_url}?p={page}"
+    
+            get_url(self.driver, url)
+            self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
             sleep(1)
+    
             anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
-            for a in anchors:
-                href = a.get_attribute("href")
-                if href:
-                    links.add(href)
-
-            if len(links) == prev_count:
-                break
-            prev_count = len(links)
-
+            new_links = [a.get_attribute("href") for a in anchors if a.get_attribute("href")]
+            print(f"📄 Page {page}: Found {len(new_links)} products")
+    
+            before_count = len(links)
+            links.update(new_links)
+    
+            if len(links) == before_count:
+                break  # No new products → assume end of pagination
+            
+            page += 1
+    
         return list(links)
-
+    
+    
     def _test_product(self, category_url: str, product_url: str):
         """
         Opens a product page, scrolls to load images, and records any failures.
