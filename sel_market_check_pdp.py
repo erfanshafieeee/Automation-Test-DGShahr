@@ -13,7 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from functions import get_url
 
-# ── CONFIG ───────────────────────────────────────────────────────────
+# ── CONFIGURATION ─────────────────────────────────────────────────────
 CATEGORY_URLS = [
     "https://marketplace-staging.dgstack.ir/plp/category/2240",
     "https://marketplace-staging.dgstack.ir/plp/category/2236",
@@ -27,12 +27,13 @@ CATEGORY_URLS = [
 ]
 PRODUCTS_PER_CATEGORY = 2
 
-# Webhook URL of deployed Apps Script (must end in /exec)
 WEBHOOK_URL = (
     "https://script.google.com/macros/s/"
     "AKfycbykd4NnH0ouuhOsrQuye4kJUyGFAjwgObwRyzDHYe-GtU0GM4LcKVWSxf9VRvmbKXK06w/exec"
 )
-# ── END CONFIG ────────────────────────────────────────────────────────
+
+CHECK_MODE = "fast"  # Modes: fast, random, full
+# ───────────────────────────────────────────────────────────────────────
 
 
 class MarketplaceTester:
@@ -45,7 +46,6 @@ class MarketplaceTester:
         self.driver = self._init_driver()
         self.wait = WebDriverWait(self.driver, 10)
 
-        # Counters
         self.total_categories = len(CATEGORY_URLS)
         self.total_tested = 0
         self.ok_products = 0
@@ -66,43 +66,83 @@ class MarketplaceTester:
             options=options,
         )
 
-    def _collect_product_links(self, category_url: str) -> List[str]:
+    def _collect_product_links(self, category_url: str, mode: str = CHECK_MODE, max_random_pages: int = 10) -> List[str]:
         """
-        Loads all paginated product pages in a category and collects product URLs.
+        Collects product URLs from a category page.
+        Modes:
+            - "fast": only the first page.
+            - "random": sample from several random pages.
+            - "full": all pages until empty.
         """
-        links = set()
-        page = 1
-    
-        while True:
-            # Append page parameter
-            if "?" in category_url:
-                url = f"{category_url}&p={page}"
-            else:
-                url = f"{category_url}?p={page}"
-    
-            get_url(self.driver, url)
+        def load_page(url: str):
+            self.driver.get(url)
             self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
             sleep(1)
-    
-            anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
-            new_links = [a.get_attribute("href") for a in anchors if a.get_attribute("href")]
-            print(f"📄 Page {page}: Found {len(new_links)} products")
-    
-            before_count = len(links)
-            links.update(new_links)
-    
-            if len(links) == before_count:
-                break  # No new products → assume end of pagination
-            
-            page += 1
-    
+
+        links = set()
+
+        if mode == "fast":
+            load_page(category_url)
+            prev_count = 0
+            while True:
+                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                sleep(1)
+                anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+                for a in anchors:
+                    href = a.get_attribute("href")
+                    if href:
+                        links.add(href)
+                if len(links) == prev_count:
+                    break
+                prev_count = len(links)
+
+        elif mode == "random":
+            total_pages = 0
+            while True:
+                page = total_pages + 1
+                url = f"{category_url}&p={page}" if "?" in category_url else f"{category_url}?p={page}"
+                load_page(url)
+                anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+                if len(anchors) == 0:
+                    break
+                total_pages += 1
+
+            print(f"📄 Total pages found: {total_pages}")
+            if total_pages == 0:
+                return []
+
+            pages_to_check = random.sample(range(1, total_pages + 1), min(max_random_pages, total_pages))
+            print(f"🎲 Randomly selected pages: {pages_to_check}")
+
+            for page in pages_to_check:
+                url = f"{category_url}&p={page}" if "?" in category_url else f"{category_url}?p={page}"
+                load_page(url)
+                anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+                new_links = [a.get_attribute("href") for a in anchors if a.get_attribute("href")]
+                print(f"✅ Page {page}: Found {len(new_links)} products")
+                links.update(new_links)
+
+        elif mode == "full":
+            page = 1
+            while True:
+                url = f"{category_url}&p={page}" if "?" in category_url else f"{category_url}?p={page}"
+                load_page(url)
+                anchors = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/product/']")
+                if len(anchors) == 0:
+                    break
+                new_links = [a.get_attribute("href") for a in anchors if a.get_attribute("href")]
+                print(f"✅ Page {page}: Found {len(new_links)} products")
+                links.update(new_links)
+                page += 1
+
+        else:
+            raise ValueError(f"Unknown mode: {mode}. Use 'fast', 'random', or 'full'.")
+
+        print(f"🔗 Total product links collected: {len(links)}")
         return list(links)
-    
-    
+
     def _test_product(self, category_url: str, product_url: str):
-        """
-        Opens a product page, scrolls to load images, and records any failures.
-        """
+        """Open product page, load images, and log any failures."""
         self.total_tested += 1
         try:
             get_url(self.driver, product_url)
@@ -143,9 +183,7 @@ class MarketplaceTester:
             self.failed_products.append((category_url, product_url, "images failed"))
 
     def _sync_failures_to_sheet(self):
-        """
-        Posts any collected failures to the Google Sheets webhook.
-        """
+        """Send failed image details to Google Sheets webhook."""
         if not self.failure_details:
             return
 
@@ -165,15 +203,10 @@ class MarketplaceTester:
             print("‼️ Error posting to webhook:", e)
 
     def run(self):
-        """
-        Main entry point: iterates categories, tests products,
-        synchronizes failures, and prints a summary.
-        """
-        # Ensure the shop page is loaded
+        """Run test suite across all configured categories."""
         get_url(self.driver, "https://marketplace-staging.dgstack.ir/shop")
         self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-        # Iterate all categories
         for cat_url in CATEGORY_URLS:
             product_links = self._collect_product_links(cat_url)
             to_test = random.sample(product_links, min(PRODUCTS_PER_CATEGORY, len(product_links)))
@@ -182,26 +215,21 @@ class MarketplaceTester:
             for prod_url in to_test:
                 self._test_product(cat_url, prod_url)
 
-        # Report failures
         self._sync_failures_to_sheet()
 
-        # Print summary
         print("\n--- SUMMARY ---")
         print(f"Categories scanned:       {self.total_categories}")
         print(f"Products tested:          {self.total_tested}")
         if self.total_tested:
             print(f"✔️ Products OK:           {self.ok_products} ({self.ok_products/self.total_tested*100:.1f}%)")
-            print(f"❌ Products issues:       {len(self.failed_products)} "
-                  f"({len(self.failed_products)/self.total_tested*100:.1f}%)")
+            print(f"❌ Products issues:       {len(self.failed_products)} ({len(self.failed_products)/self.total_tested*100:.1f}%)")
         else:
             print("⚠️ No products were tested — check CATEGORY_URLS or login state")
 
         print(f"\nTotal images checked:     {self.total_images}")
         if self.total_images:
-            print(f"✅ Loaded images:         {self.loaded_images} "
-                  f"({self.loaded_images/self.total_images*100:.1f}%)")
-            print(f"⚠️ Failed images:         {self.failed_images} "
-                  f"({self.failed_images/self.total_images*100:.1f}%)")
+            print(f"✅ Loaded images:         {self.loaded_images} ({self.loaded_images/self.total_images*100:.1f}%)")
+            print(f"⚠️ Failed images:         {self.failed_images} ({self.failed_images/self.total_images*100:.1f}%)")
         else:
             print("⚠️ No images were found — check selectors")
 
