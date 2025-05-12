@@ -317,11 +317,11 @@ def test_loan_config():
     assert response.status_code == 200
 
     schema = {
-        "12": {"min_loan_amount": 100000000, "max_loan_amount": 2000000000, "wage": 9},
-        "24": {"min_loan_amount": 100000000, "max_loan_amount": 2000000000, "wage": 15},
-        "36": {"min_loan_amount": 510000000, "max_loan_amount": 2000000000, "wage": 15},
-        "48": {"min_loan_amount": 810000000, "max_loan_amount": 2000000000, "wage": 15},
-        "60": {"min_loan_amount": 1210000000, "max_loan_amount": 2000000000, "wage": 15},
+        "12": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 9},
+        "24": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 15},
+        "36": {"min_loan_amount": 510000000, "max_loan_amount": 3000000000, "wage": 15},
+        "48": {"min_loan_amount": 810000000, "max_loan_amount": 3000000000, "wage": 15},
+        "60": {"min_loan_amount": 1210000000, "max_loan_amount": 3000000000, "wage": 15},
     }
     assert response.json() == schema
 
