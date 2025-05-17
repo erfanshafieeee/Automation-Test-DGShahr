@@ -1,306 +1,170 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from time import sleep
-from constants import NATIONAL_CODE, MAX_VALUE, POSTAL_CODE, URL, PHONE_NUMBER
 import os
-from functions import *
-from webdriver_manager.chrome import ChromeDriverManager
+from time import sleep
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-global request_step
-request_step = None
-
-request_step = get_request_step_loan()
-
-
-chrome_options = Options()
-chrome_options.add_argument('--log-level=3')
-chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+from constants import NATIONAL_CODE, MAX_VALUE, POSTAL_CODE, URL, PHONE_NUMBER
+from functions import *
 
 
-driver = webdriver.Chrome(
-    service=Service(ChromeDriverManager().install()),
-    options=chrome_options
-)
-file_path_low_size = os.path.abspath("./low_size.png")
+class LoanAutomation:
+    def __init__(self):
+        self.driver = self._setup_driver()
+        self.file_path_low_size = os.path.abspath("./low_size.png")
+        self.request_step = get_request_step_loan()
 
-match request_step:
-    case False:
-        get_url(driver, URL)
+    def _setup_driver(self):
+        options = Options()
+        options.add_argument('--log-level=3')
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+    def run(self):
+        step_methods = {
+            False: self._step_fresh_start,
+            "primary_info_registration__auth_otp": self._step_auth_otp,
+            "primary_info_registration__credit_rank": self._step_credit_rank,
+            "loan_request": self._step_loan_request,
+            "info_completion__identity": self._step_identity,
+            "info_completion__residence": self._step_residence,
+            "info_completion__branch": self._step_branch,
+        }
+
+        action = step_methods.get(self.request_step)
+        if action:
+            action()
+        else:
+            print(f"❌ Unknown request step: {self.request_step}")
+
+    def _login_and_navigate(self):
+        get_url(self.driver, URL)
         sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
+        login(self.driver, PHONE_NUMBER)
         sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
+        otp_code(self.driver)
         sleep(5)
-        #################### loan request page ####################
-        loan_request(driver, "TOP")
-        driver.back()
+        loan_request(self.driver, "Down")
+        sleep(3)
+        self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button').click()
+        sleep(3)
+
+    def _select_guarantee_and_next(self):
+        select_guarantee_type(self.driver, "'دو برگ چک صیادی خودم'")
         sleep(2)
-        loan_request(driver, "Down")
+        set_max_value(self.driver, MAX_VALUE)
+        self.driver.find_element(
+            By.XPATH,
+            "//div[contains(@class, 'swiper-slide-next')]//span[text()='24']"
+        ).click()
+        self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[1]//span/span[1]').click()
+        self.driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[2]//span/span/span[1]').click()
+        sleep(2)
+        next_button(self.driver)
+        sleep(3)
 
-        #################### primary info form ####################
-        primary_info(driver, NATIONAL_CODE, "1383", "آبان",
-                     "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
-        #################### Validation ####################
+    def _upload_identity_residence_job_docs(self):
+        Upload_identity_documents(self.driver, self.file_path_low_size)
+        sleep(5)
+        next_button(self.driver)
+
+        sleep(3)
+        Residence_documents(
+            self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'",
+            "'آدرس تست'", self.file_path_low_size, "'آدرس تست'"
+        )
+        sleep(3)
+        next_button(self.driver)
+
+        sleep(5)
+        Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
+        sleep(3)
+        next_button(self.driver)
         sleep(10)
-        exit_button = driver.find_element(
-            By.XPATH, '/html/body/div[2]/div/div/div[1]/button')
-        exit_button.click()
 
-        while not is_credit_approved(driver):
+    def _step_fresh_start(self):
+        get_url(self.driver, URL)
+        sleep(5)
+        login(self.driver, PHONE_NUMBER)
+        sleep(5)
+        otp_code(self.driver)
+        sleep(5)
+        loan_request(self.driver, "TOP")
+        self.driver.back()
+        sleep(2)
+        loan_request(self.driver, "Down")
+
+        primary_info(self.driver, NATIONAL_CODE, "1383", "آبان", "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
+        sleep(10)
+        self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+
+        while not is_credit_approved(self.driver):
             sleep(5)
         sleep(3)
-        next_button(driver)
+        next_button(self.driver)
         sleep(3)
-        #################### guarantee ####################
-        select_guarantee_type(driver, "'دو برگ چک صیادی خودم'")
-        sleep(2)
-        set_max_value(driver, MAX_VALUE)
-        period_element = driver.find_element(
-            By.XPATH, "//div[contains(@class, 'swiper-slide-next') and contains(@class, 'select-none')]//span[@class='period-value' and text()='24']")
-        period_element.click()
-        checkbox1 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[1]/div/div[2]/div/span/span[1]')
-        checkbox1.click()
-        checkbox2 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[2]/div/div[2]/div/span/span/span[1]')
-        checkbox2.click()
-        sleep(2)
-        next_button(driver)
-        sleep(3)
-        #################### identity_documents ####################
-        Upload_identity_documents(driver, file_path_low_size)
-        sleep(5)
-        next_button(driver)
-        #################### Residence_documents ####################
-        sleep(3)
-        Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
-                            "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
-        sleep(3)
-        next_button(driver)
-        #################### job_documents ####################
-        sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
-        sleep(3)
-        next_button(driver)
-        ####################
-        sleep(10)
 
-    case "primary_info_registration__auth_otp":
-        get_url(driver, URL)
-        sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
-        sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        sleep(3)
-        ####################
+        self._select_guarantee_and_next()
+        self._upload_identity_residence_job_docs()
+
+    def _step_auth_otp(self):
+        self._login_and_navigate()
         sleep(10)
-        exit_button = driver.find_element(
-            By.XPATH, '/html/body/div[2]/div/div/div[1]/button')
-        exit_button.click()
-        while not is_credit_approved(driver):
+        self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+
+        while not is_credit_approved(self.driver):
             sleep(5)
         sleep(3)
-        next_button(driver)
+        next_button(self.driver)
         sleep(3)
-        #################### guarantee ####################
-        select_guarantee_type(driver, "'دو برگ چک صیادی خودم'")
-        sleep(2)
-        set_max_value(driver, MAX_VALUE)
-        period_element = driver.find_element(
-            By.XPATH, "//div[contains(@class, 'swiper-slide-next') and contains(@class, 'select-none')]//span[@class='period-value' and text()='24']")
-        period_element.click()
-        checkbox1 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[1]/div/div[2]/div/span/span[1]')
-        checkbox1.click()
-        checkbox2 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[2]/div/div[2]/div/span/span/span[1]')
-        checkbox2.click()
-        sleep(2)
-        next_button(driver)
-        sleep(3)
-        #################### identity_documents ####################
-        Upload_identity_documents(driver, file_path_low_size)
+
+        self._select_guarantee_and_next()
+        self._upload_identity_residence_job_docs()
+
+    def _step_credit_rank(self):
+        self._login_and_navigate()
+        self._select_guarantee_and_next()
+        self._upload_identity_residence_job_docs()
+
+    def _step_loan_request(self):
+        self._login_and_navigate()
+        Upload_identity_documents(self.driver, self.file_path_low_size)
         sleep(5)
-        next_button(driver)
-        #################### Residence_documents ####################
+        next_button(self.driver)
         sleep(3)
-        Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
-                            "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
+        Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
-        next_button(driver)
-        #################### job_documents ####################
+        next_button(self.driver)
         sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
+        Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
-        next_button(driver)
-        ####################
+        next_button(self.driver)
         sleep(10)
 
-    case "primary_info_registration__credit_rank":
-        get_url(driver, URL)
+    def _step_identity(self):
+        self._login_and_navigate()
+        Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
+        sleep(3)
+        next_button(self.driver)
         sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
+        Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        sleep(3)
-        #################### guarantee ####################
-        select_guarantee_type(driver, "'دو برگ چک صیادی خودم'")
-        sleep(2)
-        set_max_value(driver, MAX_VALUE)
-        period_element = driver.find_element(
-            By.XPATH, "//div[contains(@class, 'swiper-slide-next') and contains(@class, 'select-none')]//span[@class='period-value' and text()='24']")
-        period_element.click()
-        checkbox1 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[1]/div/div[2]/div/span/span[1]')
-        checkbox1.click()
-        checkbox2 = driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[2]/div/div/div[2]/div[5]/label[2]/div/div[2]/div/span/span/span[1]')
-        checkbox2.click()
-        sleep(2)
-        next_button(driver)
-        sleep(3)
-        #################### identity_documents ####################
-        Upload_identity_documents(driver, file_path_low_size)
-        sleep(5)
-        next_button(driver)
-        #################### Residence_documents ####################
-        sleep(3)
-        Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
-                            "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
-        sleep(3)
-        next_button(driver)
-        #################### job_documents ####################
-        sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
-        sleep(3)
-        next_button(driver)
-        ####################
+        next_button(self.driver)
         sleep(10)
-    case "loan_request":
-        get_url(driver, URL)
-        sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
+
+    def _step_residence(self):
+        self._login_and_navigate()
+        Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        sleep(3)
-        #################### identity_documents ####################
-        Upload_identity_documents(driver, file_path_low_size)
-        sleep(5)
-        next_button(driver)
-        #################### Residence_documents ####################
-        sleep(3)
-        Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
-                            "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
-        sleep(3)
-        next_button(driver)
-        #################### job_documents ####################
-        sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
-        sleep(3)
-        next_button(driver)
-        ####################
+        next_button(self.driver)
         sleep(10)
-    case "info_completion__identity":
-        get_url(driver, URL)
-        sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
-        sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        sleep(3)
-        #################### Residence_documents ####################
-        Residence_documents(driver, POSTAL_CODE, "'مالک'", "'تهران'",
-                            "'تهران'", "'آدرس تست'", file_path_low_size, "'آدرس تست'")
-        sleep(3)
-        next_button(driver)
-        #################### job_documents ####################
-        sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
-        sleep(3)
-        next_button(driver)
-        ####################
+
+    def _step_branch(self):
+        self._login_and_navigate()
         sleep(10)
-    case "info_completion__residence":
-        get_url(driver, URL)
-        sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
-        sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        #################### job_documents ####################
-        sleep(5)
-        Upload_job_documents(
-            driver, "'۱۵ تا ۲۰ میلیون تومان'", file_path_low_size)
-        sleep(3)
-        next_button(driver)
-        ####################
-        sleep(10)
-    case "info_completion__branch":
-        get_url(driver, URL)
-        sleep(5)
-        #################### login page ####################
-        login(driver, PHONE_NUMBER)
-        sleep(5)
-        #################### otp code ####################
-        code = otp_code(driver)
-        sleep(5)
-        #################### loan ####################
-        loan_request(driver, "Down")
-        sleep(3)
-        auth_button = driver.find_element(
-            By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button')
-        auth_button.click()
-        ####################
-        sleep(10)
+
+
+if __name__ == "__main__":
+    LoanAutomation().run()
