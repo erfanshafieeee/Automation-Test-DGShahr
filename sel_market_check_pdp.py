@@ -118,7 +118,14 @@ class FailureReporter:
 class MarketplaceTester:
     CATEGORY_URLS = [
         "https://marketplace-staging.dgstack.ir/plp/category/2240",
-        # ... add the rest here ...
+        "https://marketplace-staging.dgstack.ir/plp/category/2236",
+        "https://marketplace-staging.dgstack.ir/plp?category_id=2316",
+        "https://marketplace-staging.dgstack.ir/plp/category/2209",
+        "https://marketplace-staging.dgstack.ir/plp/category/2763",
+        "https://marketplace-staging.dgstack.ir/plp?category_id=2482",
+        "https://marketplace-staging.dgstack.ir/plp?category_id=2451",
+        "https://marketplace-staging.dgstack.ir/plp/category/2367",
+        "https://marketplace-staging.dgstack.ir/plp/category/2478"
     ]
     PRODUCTS_PER_CATEGORY = 2
     CHECK_MODE = "fast"
