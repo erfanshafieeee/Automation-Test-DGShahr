@@ -129,7 +129,7 @@ class MarketplaceTester:
     ]
     PRODUCTS_PER_CATEGORY = 2
     CHECK_MODE = "fast"
-    WEBHOOK_URL = "https://script.google.com/macros/s/.../exec"
+    WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbykd4NnH0ouuhOsrQuye4kJUyGFAjwgObwRyzDHYe-GtU0GM4LcKVWSxf9VRvmbKXK06w/exec/exec"
 
     def __init__(self):
         self.driver = WebDriverFactory.create_driver()
