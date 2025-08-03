@@ -23,7 +23,7 @@ def login(driver, Phone_number):
 
 # Handle OTP verification
 def otp_code(driver):
-    digit_1 = driver.find_element(By.ID, 'dgs-ui-kit-otp-input-0')
+    digit_1 = driver.find_element(By.ID, 'dgsuikit:otp-input-0')
     otp_code = input("please enter your otp code : ")
     digit_1.send_keys(otp_code)
     return otp_code
@@ -46,7 +46,7 @@ def loan_request(driver, button_type):
 # Handle guaranty request button click
 def guaranty_request(driver):
     guaranty_request_button_down = driver.find_element(
-        By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]')
+        By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]/button')
     guaranty_request_button_down.click()
 
 
@@ -232,7 +232,7 @@ def convert_persian_to_int(num_str):
 # Set maximum loan value
 def set_max_value(driver, max_value):
     loan_input = driver.find_element(
-        By.XPATH, "//div[contains(@class, 'dgs-ui-kit-relative')]/input")
+        By.XPATH, "//div[contains(@class, 'cursor-text')]//input[@readonly]")
 
     current_value_str = loan_input.get_attribute("value")
     current_value = convert_persian_to_int(current_value_str)
