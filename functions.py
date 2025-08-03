@@ -49,6 +49,10 @@ def guaranty_request(driver):
         By.XPATH, '/html/body/div/div[2]/div/div/div[3]/div/button[2]/button')
     guaranty_request_button_down.click()
 
+def continue_process(driver):
+    continue_process=driver.find_element(By.XPATH , '/html/body/div/div[2]/div/div[2]/div/a/button')
+    continue_process.click()
+
 
 # Handle guaranty code submission
 def guaranty_code(driver, guaranty_code):

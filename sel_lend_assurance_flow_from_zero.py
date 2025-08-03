@@ -83,6 +83,7 @@ class GuarantyAutomation:
 
     def _step_credit_rank(self):
         self._login_and_navigate()
+        continue_process(self.driver)
         sleep(10)
         self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
 
@@ -96,10 +97,12 @@ class GuarantyAutomation:
 
     def _step_assurance(self):
         self._login_and_navigate()
+        continue_process(self.driver)
         self._upload_documents()
 
     def _step_identity(self):
         self._login_and_navigate()
+        continue_process(self.driver)
 
         Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
@@ -113,6 +116,7 @@ class GuarantyAutomation:
 
     def _step_residence(self):
         self._login_and_navigate()
+        continue_process(self.driver)
 
         sleep(5)
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
