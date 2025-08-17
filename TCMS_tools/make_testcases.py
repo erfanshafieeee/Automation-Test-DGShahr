@@ -36,7 +36,6 @@ TEST_CASE_NAMES = [
     "test_get_branch_step_data",
     "test_complete_branch_step",
 ]
-
 # Default values from tcms_maps
 DEFAULTS = {
     "category": tcms_maps.CATEGORIES_BY_PRODUCT[str(tcms_maps.PRODUCTS["LEND_USER"])]["BACKEND"],
@@ -55,7 +54,7 @@ for name in TEST_CASE_NAMES:
         "author": DEFAULTS["author"],
         "case_status": DEFAULTS["case_status"],
         "product": DEFAULTS["product"],
-        "is_automated": False,
+        "is_automated": True,
     }
 
     try:
