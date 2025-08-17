@@ -208,7 +208,9 @@ def test_partial_upload_identity(step):
     assert response.status_code == 200
     file_path_identity.append(response.json()["data"]["file_path"])
     data = {step: response.json()["data"]["file_path"]}
-    response = AssuranceAPI().patch_assurance_request(assurance_id, "info_completion__identity", data)
+    resp = AssuranceAPI().patch_assurance_request(assurance_id, "info_completion__identity", data)
+    ok = (response.status_code == 200) and (resp.status_code == 200)
+    set_exec_status("test_partial_upload_identity" , ok)
     assert response.status_code == 200
 
 def test_complete_identity_step():
@@ -275,6 +277,7 @@ def test_partial_upload_occupation(step):
     global file_path_occupation
 
     response = upload_image("low_size.png", step, "png")
+    set_exec_status("test_partial_upload_occupation",response.status_code == 200 )
     assert response.status_code == 200
     file_path_occupation.append(response.json()["data"]["file_path"])
 
