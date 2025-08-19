@@ -35,6 +35,9 @@ TEST_CASE_NAMES = [
     "test_complete_occupation_step",
     "test_get_branch_step_data",
     "test_complete_branch_step",
+    "test_validate_incorrect_code",
+    "test_validate_correct_code",
+    "test_complete_primary_info_registration_personal"
 ]
 # Default values from tcms_maps
 DEFAULTS = {
