@@ -37,12 +37,18 @@ TEST_CASE_NAMES = [
     "test_complete_branch_step",
     "test_validate_incorrect_code",
     "test_validate_correct_code",
-    "test_complete_primary_info_registration_personal"
+    "test_complete_primary_info_registration_personal",
+    "test_send_otp_first_time" , 
+    "test_send_otp_second_time",
+    "test_send_otp_third_time" ,
+    "test_login_correct_otp" , 
+    "test_login_incorrect_otp"
 ]
+
 # Default values from tcms_maps
 DEFAULTS = {
     "category": tcms_maps.CATEGORIES_BY_PRODUCT[str(tcms_maps.PRODUCTS["LEND_USER"])]["BACKEND"],
-    "priority": tcms_maps.PRIORITIES["P1"],
+    "priority": tcms_maps.PRIORITIES["Critical"],
     "author": tcms_maps.USERS["dgstack"],
     "case_status": tcms_maps.TEST_CASE_STATUSES["PROPOSED"],
     "product": tcms_maps.PRODUCTS["LEND_USER"],
