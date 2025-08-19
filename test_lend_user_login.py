@@ -5,7 +5,7 @@ import pytest
 from tcms_api import TCMS
 import TCMS_tools.tcms_maps as tcms_maps
 import datetime
-
+from TCMS_tools.tcms_fuctions import *
 # TCMS setup
 tcms_url = TCMS_URL
 tcms_username = TCMS_USERNAME
@@ -13,28 +13,6 @@ tcms_password = TCMS_PASSWORD
 rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
 
 runner_id = None  # Global variable for runner_id
-
-# -------------------- helpers: TCMS reporting --------------------
-def _get_case_id_in_run(run_id: int, case_summary: str) -> int:
-    cases = rpc.TestRun.get_cases(run_id)
-    for c in cases:
-        if c.get("summary") == case_summary:
-            return c["id"]
-    raise RuntimeError(f"TestCase '{case_summary}' not found in run {run_id}")
-
-def set_exec_status(case_summary: str, ok: bool):
-    """Update execution status for a case in the active run."""
-    case_id = _get_case_id_in_run(runner_id, case_summary)
-    executions = rpc.TestExecution.filter({"run_id": runner_id, "case": case_id})
-    if not executions:
-        raise RuntimeError(f"No executions for case_id={case_id} in run_id={runner_id}")
-
-    status_key = "PASSED" if ok else "FAILED"
-    status_id = tcms_maps.EXECUTION_STATUSES[status_key]
-
-    for e in executions:
-        rpc.TestExecution.update(e["id"], {"status": status_id})
-        print(f"[TCMS] {case_summary} -> Execution {e['id']} set to {status_key} ({status_id})")
 
 # -------------------- create Test Run & add cases --------------------
 now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -69,7 +47,7 @@ def test_send_otp_first_time():
     data = {"phone_number": PHONE_NUMBER}  # Preparing request payload
     response = UserAPI().post_login(data)  # Sending OTP request
 
-    set_exec_status("test_send_otp_first_time", response.status_code == 200)
+    set_exec_status(rpc ,runner_id,"test_send_otp_first_time", response.status_code == 200)
     assert response.status_code == 200
 
 # Test case for sending OTP again when it was already requested
@@ -78,7 +56,7 @@ def test_send_otp_second_time():
     response = UserAPI().post_login(data)  # Sending OTP request again
     print(response.status_code)
 
-    set_exec_status("test_send_otp_second_time", response.status_code == 200)
+    set_exec_status(rpc , runner_id ,"test_send_otp_second_time", response.status_code == 200)
     assert response.status_code == 200  # Expecting a failure response
 
 def test_send_otp_third_time():
@@ -87,7 +65,7 @@ def test_send_otp_third_time():
     print(response.status_code)
 
     ok = response.status_code == 400 and response.json()["error"] == "کد ورود قبلا ارسال شده است"
-    set_exec_status("test_send_otp_third_time", ok)
+    set_exec_status(rpc , runner_id ,"test_send_otp_third_time", ok)
     assert response.status_code == 400  # Expecting a failure response
     assert response.json()["error"] == "کد ورود قبلا ارسال شده است"  # Checking expected error message
 
@@ -121,7 +99,7 @@ def test_login_correct_otp():
     }
 
     ok = response.status_code == 200 and schema_validator(response_body, schema) is None
-    set_exec_status("test_login_correct_otp", ok)
+    set_exec_status(rpc , runner_id ,"test_login_correct_otp", ok)
     assert response.status_code == 200
     schema_validator(response_body, schema)  # Validating response schema
     update_token_in_constants(response_body["data"]["access_token"])  # Updating token in constants.py
@@ -132,7 +110,7 @@ def test_login_incorrect_otp():
     data = {"phone_number": PHONE_NUMBER, "code": "111111"}  # Providing incorrect OTP
     response = UserAPI().post_login(data)  # Sending login request
 
-    set_exec_status("test_login_incorrect_otp", response.status_code == 401)
+    set_exec_status(rpc , runner_id ,"test_login_incorrect_otp", response.status_code == 401)
     assert response.status_code == 401  # Ensuring the login fails
 
 # -------------------- After Test Run --------------------
