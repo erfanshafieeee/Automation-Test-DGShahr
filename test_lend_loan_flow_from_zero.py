@@ -1,5 +1,5 @@
 from api_collections import LoanAPI, AssuranceAPI
-from constants import BIRTH_DATE, NATIONAL_CODE
+from constants import BIRTH_DATE, NATIONAL_CODE , TCMS_URL , TCMS_USERNAME , TCMS_PASSWORD
 import time
 import pytest
 from common_functions import schema_validator, upload_image
@@ -7,11 +7,11 @@ import datetime
 from tcms_api import TCMS
 import TCMS_tools.tcms_maps as tcms_maps
 
-url = "https://kiwi.dgstack.ir/xml-rpc/"
-username = "dgstack"
-password = "jO8Rqmzy8l"
-
-rpc = TCMS(url, username, password).exec
+# TCMS setup
+tcms_url = TCMS_URL
+tcms_username = TCMS_USERNAME
+tcms_password = TCMS_PASSWORD
+rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
 
 loan_id = 0
 credit_rank = ""

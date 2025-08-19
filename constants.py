@@ -11,3 +11,6 @@ BO_LOAN_ID = 10540
 BO_ASSURANCE_ID = 71
 URL = "https://alpha.dgstack.ir/lend/login"
 MAX_VALUE = 80000000
+TCMS_URL = "https://kiwi.dgstack.ir/xml-rpc/"
+TCMS_USERNAME = "dgstack"
+TCMS_PASSWORD = "jO8Rqmzy8l"

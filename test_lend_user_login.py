@@ -1,5 +1,5 @@
 from api_collections import UserAPI
-from constants import PHONE_NUMBER
+from constants import PHONE_NUMBER , TCMS_URL , TCMS_USERNAME , TCMS_PASSWORD
 from common_functions import schema_validator, update_token_in_constants
 import pytest
 from tcms_api import TCMS
@@ -7,10 +7,10 @@ import TCMS_tools.tcms_maps as tcms_maps
 import datetime
 
 # TCMS setup
-url = "https://kiwi.dgstack.ir/xml-rpc/"
-username = "dgstack"
-password = "jO8Rqmzy8l"
-rpc = TCMS(url, username, password).exec
+tcms_url = TCMS_URL
+tcms_username = TCMS_USERNAME
+tcms_password = TCMS_PASSWORD
+rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
 
 runner_id = None  # Global variable for runner_id
 
