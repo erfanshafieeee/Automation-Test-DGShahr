@@ -40,6 +40,18 @@ def set_exec_status(case_summary: str, ok: bool):
         rpc.TestExecution.update(e["id"], {"status": status_id})
         print(f"[TCMS] {case_summary} -> Execution {e['id']} set to {status_key} ({status_id})")
 
+def add_failure_note_to_tcms(test_case_summary: str, failure_reason: str):
+    """Add a failure note to the test case in TCMS."""
+    case_id = _get_case_id_in_run(runner_id, test_case_summary)
+    
+    note_data = {
+        "note": failure_reason,
+        "note_type": "failure"
+    }
+    
+    rpc.TestCase.update(case_id, {"notes": [note_data]})
+    print(f"[TCMS] Failure note added to Test Case '{test_case_summary}': {failure_reason}")
+
 # -------------------- create Test Run & add cases --------------------
 test_run_data = {
     "summary": f"test_lend_loan_flow_from_zero {now_str}",
@@ -65,9 +77,13 @@ for case in test_cases:
 # ====================== Step 1: Loan Request ======================
 
 def test_get_primary_info_registration_personal():
-    resp = LoanAPI().get_loan_request(0, "primary_info_registration__personal")
-    set_exec_status("test_get_primary_info_registration_personal", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().get_loan_request(0, "primary_info_registration__personal")
+        set_exec_status("test_get_primary_info_registration_personal", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_get_primary_info_registration_personal", str(e))
+        raise e
 
 def test_create_primary_info_registration_personal_befor_sabtAhval():
     global loan_id
