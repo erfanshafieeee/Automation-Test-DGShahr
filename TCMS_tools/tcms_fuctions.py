@@ -33,3 +33,25 @@ def set_exec_status_manualy(rpc , runner_id ,case_summary: str, status: str):
     for e in executions:
         rpc.TestExecution.update(e["id"], {"status": status_id})
         print(f"[TCMS] {case_summary} -> Execution {e['id']} set to {status} ({status_id})")
+
+def add_failure_comment_to_tcms(rpc , runner_id , test_case_summary: str, failure_reason: str):
+    """Add a failure note to the test case in TCMS."""
+    case_id = _get_case_id_in_run(rpc , runner_id, test_case_summary)
+    
+    executions = rpc.TestExecution.filter({"run_id": runner_id, "case": case_id})
+    for e in executions:
+        rpc.TestExecution.add_comment(e['id'] , f"failure_reason {failure_reason}")
+    print(f"[TCMS] Failure Comment added to Test Case '{test_case_summary}': {failure_reason}")
+
+
+def add_comment_to_tcms(rpc, runner_id, test_case_summary: str, comment: str):
+    """Add a comment to the test case in the test runner."""
+    # Find the case ID based on the runner ID and test case summary
+    case_id = _get_case_id_in_run(rpc , runner_id, test_case_summary)
+
+    executions = rpc.TestExecution.filter({"run_id": runner_id, "case": case_id})
+    for e in executions:
+        rpc.TestExecution.add_comment(e['id'] , comment)
+    # Log the success
+    print(f"[TCMS] Comment added to Test Case '{test_case_summary}': {comment}")
+
