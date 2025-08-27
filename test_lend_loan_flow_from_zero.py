@@ -86,283 +86,341 @@ def test_get_primary_info_registration_personal():
         raise e
 
 def test_create_primary_info_registration_personal_befor_sabtAhval():
-    global loan_id
-    data = {"company": "other", "employment_status": "official", "shop": None}
-    resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
-    set_exec_status("test_create_primary_info_registration_personal_befor_sabtAhval", resp.status_code == 400)
-    assert resp.status_code == 400
+    try:
+        global loan_id
+        data = {"company": "other", "employment_status": "official", "shop": None}
+        resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
+        set_exec_status("test_create_primary_info_registration_personal_befor_sabtAhval", resp.status_code == 400)
+        assert resp.status_code == 400
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_create_primary_info_registration_personal_befor_sabtAhval" , str(e))
+        raise e
 
 def test_incorrect_nationalCode():
-    data = {"national_code": "3730528262", "shamsi_birth_date": BIRTH_DATE}
-    resp = LoanAPI().post_user_validation(data)
-    ok = (resp.status_code == 406) and (resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد.")
-    set_exec_status("test_incorrect_nationalCode", ok)
-    assert resp.status_code == 406
-    assert resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد."
-
+    try:
+        data = {"national_code": "3730528262", "shamsi_birth_date": BIRTH_DATE}
+        resp = LoanAPI().post_user_validation(data)
+        ok = (resp.status_code == 406) and (resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد.")
+        set_exec_status("test_incorrect_nationalCode", ok)
+        assert resp.status_code == 406
+        assert resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد."
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_incorrect_nationalCode" , str(e))
+        raise e 
 def test_incorrect_nationalCode_and_birthDate():
-    data = {"national_code": "3730528262", "shamsi_birth_date": "1381/10/10"}
-    resp = LoanAPI().post_user_validation(data)
-    ok = (resp.status_code == 406) and (resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد.")
-    set_exec_status("test_incorrect_nationalCode_and_birthDate", ok)
-    assert resp.status_code == 406
-    assert resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد."
+    try:
+        data = {"national_code": "3730528262", "shamsi_birth_date": "1381/10/10"}
+        resp = LoanAPI().post_user_validation(data)
+        ok = (resp.status_code == 406) and (resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد.")
+        set_exec_status("test_incorrect_nationalCode_and_birthDate", ok)
+        assert resp.status_code == 406
+        assert resp.json()["error"] == "شماره موبایل شما متعلق به کد ملی وارد شده نمی باشد."
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_incorrect_nationalCode_and_birthDate" , str(e))
+        raise e
 
 def test_incorrect_birthDate():
-    data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": "1381/10/10"}
-    resp = LoanAPI().post_user_validation(data)
-    ok = (resp.status_code == 400) and (
-        resp.json()["error"] == "تاریخ تولد وارد شده با کد ملی تطابق ندارد و یا مشکلی پیش آمده است. لطفا در صورت صحت تاریخ تولد وارد شده، بعدا تلاش کنید."
-    )
-    set_exec_status("test_incorrect_birthDate", ok)
-    assert resp.status_code == 400
-    assert resp.json()["error"] == "تاریخ تولد وارد شده با کد ملی تطابق ندارد و یا مشکلی پیش آمده است. لطفا در صورت صحت تاریخ تولد وارد شده، بعدا تلاش کنید."
-
+    try:
+        data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": "1381/10/10"}
+        resp = LoanAPI().post_user_validation(data)
+        ok = (resp.status_code == 400) and (
+            resp.json()["error"] == "تاریخ تولد وارد شده با کد ملی تطابق ندارد و یا مشکلی پیش آمده است. لطفا در صورت صحت تاریخ تولد وارد شده، بعدا تلاش کنید."
+        )
+        set_exec_status("test_incorrect_birthDate", ok)
+        assert resp.status_code == 400
+        assert resp.json()["error"] == "تاریخ تولد وارد شده با کد ملی تطابق ندارد و یا مشکلی پیش آمده است. لطفا در صورت صحت تاریخ تولد وارد شده، بعدا تلاش کنید."
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_incorrect_birthDate" ,str(e))
+        raise e 
 def test_correct_info():
-    data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": BIRTH_DATE}
-    resp = LoanAPI().post_user_validation(data)
-    set_exec_status("test_correct_info", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": BIRTH_DATE}
+        resp = LoanAPI().post_user_validation(data)
+        set_exec_status("test_correct_info", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_correct_info" , str(e))
+        raise e 
 
 def test_create_primary_info_registration_personal():
-    global loan_id
-    data = {"company": "other", "employment_status": "official", "shop": None}
-    resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
-    body = resp.json()
+    try:
+        global loan_id
+        data = {"company": "other", "employment_status": "official", "shop": None}
+        resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
+        body = resp.json()
 
-    schema = {
-        "type": "object",
-        "properties": {
-            "data": {
-                "type": "object",
-                "properties": {
-                    "loan_id": {"type": "integer"},
-                    "national_code": {"type": "string"},
-                    "shamsi_birth_date": {"type": "string", "pattern": "^[0-9]{4}/[0-9]{2}/[0-9]{2}$"},
-                    "employment_status": {"type": "string", "enum": ["contractor", "official", "retired", "self_employed", "other"]},
-                    "company": {"type": "string", "enum": ["armed_forces", "edu_department", "edu_deputy", "milad_tower", "ministry_of_energy", "shahr_bank", "shahrdari", "other"]},
+        schema = {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "loan_id": {"type": "integer"},
+                        "national_code": {"type": "string"},
+                        "shamsi_birth_date": {"type": "string", "pattern": "^[0-9]{4}/[0-9]{2}/[0-9]{2}$"},
+                        "employment_status": {"type": "string", "enum": ["contractor", "official", "retired", "self_employed", "other"]},
+                        "company": {"type": "string", "enum": ["armed_forces", "edu_department", "edu_deputy", "milad_tower", "ministry_of_energy", "shahr_bank", "shahrdari", "other"]},
+                    },
+                    "required": ["loan_id", "national_code", "shamsi_birth_date", "employment_status", "company"],
                 },
-                "required": ["loan_id", "national_code", "shamsi_birth_date", "employment_status", "company"],
+                "message": {"type": ["string", "null"]},
+                "error": {"type": ["string", "null"]},
             },
-            "message": {"type": ["string", "null"]},
-            "error": {"type": ["string", "null"]},
-        },
-        "required": ["data", "message", "error"],
-    }
+            "required": ["data", "message", "error"],
+        }
 
-    ok = (resp.status_code == 201) and schema_validator(body, schema) is None
-    set_exec_status("test_create_primary_info_registration_personal", ok)
+        ok = (resp.status_code == 201) and schema_validator(body, schema) is None
+        set_exec_status("test_create_primary_info_registration_personal", ok)
 
-    assert resp.status_code == 201
-    schema_validator(body, schema)
-    loan_id = body["data"]["loan_id"]
+        assert resp.status_code == 201
+        schema_validator(body, schema)
+        loan_id = body["data"]["loan_id"]
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_create_primary_info_registration_personal" , str(e))
+        raise e 
 
 def test_change_birthdate():
-    data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": "1380/01/01"}
-    resp = LoanAPI().post_user_validation(data)
-    ok = (resp.status_code == 400) and (resp.json()["error"] == "تاریخ تولد قابل ویرایش نمی‌باشد.")
-    set_exec_status("test_change_birthdate", ok)
-    assert resp.status_code == 400
-    assert resp.json()["error"] == "تاریخ تولد قابل ویرایش نمی‌باشد."
+    try:
+        data = {"national_code": NATIONAL_CODE, "shamsi_birth_date": "1380/01/01"}
+        resp = LoanAPI().post_user_validation(data)
+        ok = (resp.status_code == 400) and (resp.json()["error"] == "تاریخ تولد قابل ویرایش نمی‌باشد.")
+        set_exec_status("test_change_birthdate", ok)
+        assert resp.status_code == 400
+        assert resp.json()["error"] == "تاریخ تولد قابل ویرایش نمی‌باشد."
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_change_birthdate" , str(e))
+        raise e
 
 def test_duplicate_loan_request():
-    data = {
-        "company": "other",
-        "employment_status": "official",
-        "national_code": NATIONAL_CODE,
-        "shamsi_birth_date": BIRTH_DATE,
-        "shop": None,
-    }
-    resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
-    ok = (resp.status_code == 400) and (
-        resp.json()["error"]
-        == "درخواست وام دیگری برای شما در حال بررسی است. لطفا تا تکمیل مراحل درخواست وام پیشین منتظر بمانید و یا درخواست وام پیشین را حذف کنید."
-    )
-    set_exec_status("test_duplicate_loan_request", ok)
-    assert resp.status_code == 400
-    assert resp.json()["error"] == "درخواست وام دیگری برای شما در حال بررسی است. لطفا تا تکمیل مراحل درخواست وام پیشین منتظر بمانید و یا درخواست وام پیشین را حذف کنید."
-
+    try:
+        data = {
+            "company": "other",
+            "employment_status": "official",
+            "national_code": NATIONAL_CODE,
+            "shamsi_birth_date": BIRTH_DATE,
+            "shop": None,
+        }
+        resp = LoanAPI().post_loan_request(0, "primary_info_registration__personal", data)
+        ok = (resp.status_code == 400) and (
+            resp.json()["error"]
+            == "درخواست وام دیگری برای شما در حال بررسی است. لطفا تا تکمیل مراحل درخواست وام پیشین منتظر بمانید و یا درخواست وام پیشین را حذف کنید."
+        )
+        set_exec_status("test_duplicate_loan_request", ok)
+        assert resp.status_code == 400
+        assert resp.json()["error"] == "درخواست وام دیگری برای شما در حال بررسی است. لطفا تا تکمیل مراحل درخواست وام پیشین منتظر بمانید و یا درخواست وام پیشین را حذف کنید."
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_duplicate_loan_request" , str(e))
+        raise e
 # ====================== Step 2: Credit Rank ======================
 
 def test_credit_rank_data():
-    global credit_rank
+    try:
+        global credit_rank
 
-    schema = {
-        "type": "object",
-        "properties": {
-            "data": {
-                "type": "object",
-                "properties": {
-                    "credit_rank": {"type": ["string", "null"], "enum": ["A", "B", "C", "D", "E", "0"]},
-                    "has_no_bounced_check": {"type": ["boolean", "null"]},
-                    "military_service_status": {"type": ["boolean", "null"]},
-                    "employment_status": {"type": "string"},
-                    "has_postponed_loans": {"type": ["boolean", "null"]},
-                    "status": {"type": "string"},
-                    "old": {"type": "boolean"},
-                    "user_id": {"type": "string"},
-                    "user_info": {
-                        "type": "object",
-                        "properties": {
-                            "first_name": {"type": "string"},
-                            "last_name": {"type": "string"},
-                            "birth_certificate_number": {"type": "string"},
-                            "gender": {"type": "string", "enum": ["مرد", "زن"]},
-                            "father_name": {"type": "string"},
-                        },
-                        "required": ["first_name", "last_name", "birth_certificate_number", "gender", "father_name"],
-                    },
-                    "credit_rank_link": {"type": ["string", "null"]},
-                    "min_amount": {"type": ["integer", "null"]},
-                    "max_amount": {"type": ["integer", "null"]},
-                    "guarantees": {
-                        "type": "object",
-                        "additionalProperties": {
+        schema = {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "credit_rank": {"type": ["string", "null"], "enum": ["A", "B", "C", "D", "E", "0"]},
+                        "has_no_bounced_check": {"type": ["boolean", "null"]},
+                        "military_service_status": {"type": ["boolean", "null"]},
+                        "employment_status": {"type": "string"},
+                        "has_postponed_loans": {"type": ["boolean", "null"]},
+                        "status": {"type": "string"},
+                        "old": {"type": "boolean"},
+                        "user_id": {"type": "string"},
+                        "user_info": {
                             "type": "object",
-                            "properties": {"value": {"type": "integer"}, "title": {"type": "string"}, "deprecated": {"type": "boolean"}},
-                            "required": ["value", "title", "deprecated"],
+                            "properties": {
+                                "first_name": {"type": "string"},
+                                "last_name": {"type": "string"},
+                                "birth_certificate_number": {"type": "string"},
+                                "gender": {"type": "string", "enum": ["مرد", "زن"]},
+                                "father_name": {"type": "string"},
+                            },
+                            "required": ["first_name", "last_name", "birth_certificate_number", "gender", "father_name"],
                         },
+                        "credit_rank_link": {"type": ["string", "null"]},
+                        "min_amount": {"type": ["integer", "null"]},
+                        "max_amount": {"type": ["integer", "null"]},
+                        "guarantees": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "properties": {"value": {"type": "integer"}, "title": {"type": "string"}, "deprecated": {"type": "boolean"}},
+                                "required": ["value", "title", "deprecated"],
+                            },
+                        },
+                        "credit_status": {"type": ["string", "null"]},
                     },
-                    "credit_status": {"type": ["string", "null"]},
+                    "required": [
+                        "has_no_bounced_check",
+                        "military_service_status",
+                        "employment_status",
+                        "has_postponed_loans",
+                        "status",
+                        "old",
+                        "user_id",
+                        "user_info",
+                    ],
                 },
-                "required": [
-                    "has_no_bounced_check",
-                    "military_service_status",
-                    "employment_status",
-                    "has_postponed_loans",
-                    "status",
-                    "old",
-                    "user_id",
-                    "user_info",
-                ],
+                "message": {"type": ["string", "null"]},
+                "error": {"type": ["string", "null"]},
+                "error_type": {"type": ["string", "null"]},
             },
-            "message": {"type": ["string", "null"]},
-            "error": {"type": ["string", "null"]},
-            "error_type": {"type": ["string", "null"]},
-        },
-        "required": ["data", "message", "error", "error_type"],
-    }
+            "required": ["data", "message", "error", "error_type"],
+        }
 
-    while True:
-        resp = LoanAPI().get_loan_request(loan_id, "primary_info_registration__credit_rank")
-        assert resp.status_code == 200
-        body = resp.json()
-        if body["data"]["credit_status"] is not None:
-            ok = schema_validator(body, schema) is None
-            set_exec_status("test_credit_rank_data", ok)
-            break
-        time.sleep(3)
+        while True:
+            # set_exec_status_manualy to running mode 
+            resp = LoanAPI().get_loan_request(loan_id, "primary_info_registration__credit_rank")
+            assert resp.status_code == 200
+            body = resp.json()
+            if body["data"]["credit_status"] is not None:
+                ok = schema_validator(body, schema) is None
+                set_exec_status("test_credit_rank_data", ok)
+                break
+            time.sleep(3)
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_credit_rank_data" , str(e))
+        raise e 
 
 def test_complete_credit_rank_step():
-    resp = LoanAPI().post_loan_request(loan_id, "primary_info_registration__auth_otp", {})
-    set_exec_status("test_complete_credit_rank_step", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().post_loan_request(loan_id, "primary_info_registration__auth_otp", {})
+        set_exec_status("test_complete_credit_rank_step", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_complete_credit_rank_step" , str(e))
+        raise e 
 
 # ====================== Step 3: Loan Amount And Guarantee ======================
 
 def test_get_loan_data():
-    resp = LoanAPI().get_loan_request(loan_id, "loan_request")
-    body = resp.json()
-    schema = {
-        "type": "object",
-        "properties": {
-            "data": {
-                "type": "object",
-                "properties": {
-                    "guarantees": {
-                        "type": "object",
-                        "additionalProperties": {
+    try:
+        resp = LoanAPI().get_loan_request(loan_id, "loan_request")
+        body = resp.json()
+        schema = {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "guarantees": {
                             "type": "object",
-                            "properties": {"value": {"type": "number"}, "title": {"type": "string"}, "deprecated": {"type": "boolean"}},
-                            "required": ["value", "title", "deprecated"],
-                        },
-                    }
+                            "additionalProperties": {
+                                "type": "object",
+                                "properties": {"value": {"type": "number"}, "title": {"type": "string"}, "deprecated": {"type": "boolean"}},
+                                "required": ["value", "title", "deprecated"],
+                            },
+                        }
+                    },
+                    "required": ["guarantees"],
                 },
-                "required": ["guarantees"],
+                "message": {"type": ["string", "null"]},
+                "error": {"type": ["string", "null"]},
             },
-            "message": {"type": ["string", "null"]},
-            "error": {"type": ["string", "null"]},
-        },
-        "required": ["data", "message", "error"],
-    }
-    ok = (resp.status_code == 200) and schema_validator(body, schema) is None
-    set_exec_status("test_get_loan_data", ok)
-    assert resp.status_code == 200
-    schema_validator(body, schema)
+            "required": ["data", "message", "error"],
+        }
+        ok = (resp.status_code == 200) and schema_validator(body, schema) is None
+        set_exec_status("test_get_loan_data", ok)
+        assert resp.status_code == 200
+        schema_validator(body, schema)
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_get_loan_data" , str(e))
+        raise e
 
 def test_loan_config():
-    resp = LoanAPI().get_loan_configs()
-    expected = {
-        "12": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 9},
-        "24": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 15},
-        "36": {"min_loan_amount": 510000000, "max_loan_amount": 3000000000, "wage": 15},
-        "48": {"min_loan_amount": 810000000, "max_loan_amount": 3000000000, "wage": 15},
-        "60": {"min_loan_amount": 1210000000, "max_loan_amount": 3000000000, "wage": 15},
-    }
-    ok = (resp.status_code == 200) and (resp.json() == expected)
-    set_exec_status("test_loan_config", ok)
-    assert resp.status_code == 200
-    assert resp.json() == expected
+    try:
+        resp = LoanAPI().get_loan_configs()
+        expected = {
+            "12": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 9},
+            "24": {"min_loan_amount": 100000000, "max_loan_amount": 3000000000, "wage": 15},
+            "36": {"min_loan_amount": 510000000, "max_loan_amount": 3000000000, "wage": 15},
+            "48": {"min_loan_amount": 810000000, "max_loan_amount": 3000000000, "wage": 15},
+            "60": {"min_loan_amount": 1210000000, "max_loan_amount": 3000000000, "wage": 15},
+        }
+        ok = (resp.status_code == 200) and (resp.json() == expected)
+        set_exec_status("test_loan_config", ok)
+        assert resp.status_code == 200
+        assert resp.json() == expected
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_loan_config" , str(e))
+        raise e
 
 def test_code_generator():
-    params = {"loan_id": loan_id}
-    resp = AssuranceAPI().get_code_generate(params)
-    body = resp.json()
-    schema = {
-        "type": "object",
-        "properties": {
-            "data": {"type": "object", "properties": {"assurance_code": {"type": "integer"}}, "required": ["assurance_code"]},
-            "message": {"type": ["string", "null"]},
-            "error": {"type": ["string", "null"]},
-            "error_type": {"type": ["string", "null"]},
-        },
-        "required": ["data", "message", "error", "error_type"],
-    }
-    ok = (resp.status_code == 200) and schema_validator(body, schema) is None
-    set_exec_status("test_code_generator", ok)
-    assert resp.status_code == 200
-    schema_validator(body, schema)
+    try:
+        params = {"loan_id": loan_id}
+        resp = AssuranceAPI().get_code_generate(params)
+        body = resp.json()
+        schema = {
+            "type": "object",
+            "properties": {
+                "data": {"type": "object", "properties": {"assurance_code": {"type": "integer"}}, "required": ["assurance_code"]},
+                "message": {"type": ["string", "null"]},
+                "error": {"type": ["string", "null"]},
+                "error_type": {"type": ["string", "null"]},
+            },
+            "required": ["data", "message", "error", "error_type"],
+        }
+        ok = (resp.status_code == 200) and schema_validator(body, schema) is None
+        set_exec_status("test_code_generator", ok)
+        assert resp.status_code == 200
+        schema_validator(body, schema)
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_code_generator" , str(e))
+        raise e
 
 def test_loan_data_correct_period():
-    amount, period, guarantee = 600000000, 24, "MY_CHECK"
-    data = {"amount": amount, "period": period, "guarantee": guarantee}
-    resp = LoanAPI().post_loan_request(loan_id, "loan_request", data)
-    body = resp.json()
-    schema = {
-        "type": "object",
-        "properties": {
-            "data": {
-                "type": "object",
-                "properties": {
-                    "amount": {"type": "number", "const": amount},
-                    "period": {"type": "number", "const": period},
-                    "guarantee": {"type": "string", "const": guarantee},
-                    "invoice": {"type": ["number", "null"]},
-                    "payment": {"type": "number"},
-                    "wage": {"type": "number"},
-                    "credit": {"type": "number"},
-                    "version": {"type": "number"},
-                    "min_amount": {"type": "number"},
-                    "max_amount": {"type": "number"},
-                    "assurance_code": {"type": "string"},
+    try:
+        amount, period, guarantee = 600000000, 24, "MY_CHECK"
+        data = {"amount": amount, "period": period, "guarantee": guarantee}
+        resp = LoanAPI().post_loan_request(loan_id, "loan_request", data)
+        body = resp.json()
+        schema = {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "amount": {"type": "number", "const": amount},
+                        "period": {"type": "number", "const": period},
+                        "guarantee": {"type": "string", "const": guarantee},
+                        "invoice": {"type": ["number", "null"]},
+                        "payment": {"type": "number"},
+                        "wage": {"type": "number"},
+                        "credit": {"type": "number"},
+                        "version": {"type": "number"},
+                        "min_amount": {"type": "number"},
+                        "max_amount": {"type": "number"},
+                        "assurance_code": {"type": "string"},
+                    },
+                    "required": ["amount", "period", "guarantee", "payment", "wage", "credit", "version", "min_amount", "max_amount", "assurance_code"],
                 },
-                "required": ["amount", "period", "guarantee", "payment", "wage", "credit", "version", "min_amount", "max_amount", "assurance_code"],
+                "message": {"type": ["string", "null"]},
+                "error": {"type": ["string", "null"]},
             },
-            "message": {"type": ["string", "null"]},
-            "error": {"type": ["string", "null"]},
-        },
-        "required": ["data", "message", "error"],
-    }
-    ok = (resp.status_code == 200) and schema_validator(body, schema) is None
-    set_exec_status("test_loan_data_correct_period", ok)
-    assert resp.status_code == 200
-    schema_validator(body, schema)
+            "required": ["data", "message", "error"],
+        }
+        ok = (resp.status_code == 200) and schema_validator(body, schema) is None
+        set_exec_status("test_loan_data_correct_period", ok)
+        assert resp.status_code == 200
+        schema_validator(body, schema)
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_loan_data_correct_period" , str(e))
+        raise e
 
 def test_loan_data_incorrect_period():
-    data = {"amount": 100000000, "period": 60, "guarantee": "MY_CHECK"}
-    resp = LoanAPI().post_loan_request(loan_id, "loan_request", data)
-    set_exec_status("test_loan_data_incorrect_period", resp.status_code == 400)
-    assert resp.status_code == 400
+    try:
+        data = {"amount": 100000000, "period": 60, "guarantee": "MY_CHECK"}
+        resp = LoanAPI().post_loan_request(loan_id, "loan_request", data)
+        set_exec_status("test_loan_data_incorrect_period", resp.status_code == 400)
+        assert resp.status_code == 400
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_loan_data_incorrect_period" , str(e))
+        raise e
 
 # ====================== Step 4: Info Completion Identity ======================
 
@@ -370,117 +428,159 @@ file_path_identity = list()
 
 @pytest.mark.parametrize("step", [("national_card_front"), ("national_card_back"), ("birth_certificate_page_1"), ("birth_certificate_page_2"), ("birth_certificate_page_3")])
 def test_partial_upload_identity(step):
-    global file_path_identity
-    resp = upload_image("low_size.png", step, "png")
-    ok1 = (resp.status_code == 200)
+    try:
+        global file_path_identity
+        resp = upload_image("low_size.png", step, "png")
+        ok1 = (resp.status_code == 200)
 
-    if ok1:
-        file_path_identity.append(resp.json()["data"]["file_path"])
-        data = {step: resp.json()["data"]["file_path"]}
-        resp2 = LoanAPI().patch_loan_request(loan_id, "info_completion__identity", data)
-        ok2 = (resp2.status_code == 200)
-        set_exec_status("test_partial_upload_identity", ok2)
-        assert ok2
-    else:
-        set_exec_status("test_partial_upload_identity", False)
-        assert False, "Upload failed"
+        if ok1:
+            file_path_identity.append(resp.json()["data"]["file_path"])
+            data = {step: resp.json()["data"]["file_path"]}
+            resp2 = LoanAPI().patch_loan_request(loan_id, "info_completion__identity", data)
+            ok2 = (resp2.status_code == 200)
+            set_exec_status("test_partial_upload_identity", ok2)
+            assert ok2
+        else:
+            set_exec_status("test_partial_upload_identity", False)
+            assert False, "Upload failed"
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_partial_upload_identity" , str(e))
+        raise e
 
 def test_complete_identity_step():
-    global file_path_identity
-    data = {
-        "national_card_front": file_path_identity[0],
-        "national_card_back": file_path_identity[1],
-        "birth_certificate_page_1": file_path_identity[2],
-        "birth_certificate_page_2": file_path_identity[3],
-        "birth_certificate_page_3": file_path_identity[4],
-    }
-    resp = LoanAPI().post_loan_request(loan_id, "info_completion__identity", data)
-    set_exec_status("test_complete_identity_step", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        global file_path_identity
+        data = {
+            "national_card_front": file_path_identity[0],
+            "national_card_back": file_path_identity[1],
+            "birth_certificate_page_1": file_path_identity[2],
+            "birth_certificate_page_2": file_path_identity[3],
+            "birth_certificate_page_3": file_path_identity[4],
+        }
+        resp = LoanAPI().post_loan_request(loan_id, "info_completion__identity", data)
+        set_exec_status("test_complete_identity_step", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_complete_identity_step" , str(e))
+        raise e
 
 # ====================== Step 5: Info Completion Residence ======================
 
 def test_get_residence_data():
-    resp = LoanAPI().get_loan_request(loan_id, "info_completion__residence")
-    set_exec_status("test_get_residence_data", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().get_loan_request(loan_id, "info_completion__residence")
+        set_exec_status("test_get_residence_data", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_get_residence_data" , str(e))
+        raise e
 
 file_path_residence = list()
 
 def test_partial_upload_residence():
-    global file_path_residence
-    resp = upload_image("low_size.png", "residence_document", "png")
-    ok1 = (resp.status_code == 200)
+    try:
+        global file_path_residence
+        resp = upload_image("low_size.png", "residence_document", "png")
+        ok1 = (resp.status_code == 200)
 
-    if ok1:
-        file_path_residence = resp.json()["data"]["file_path"]
-        data = {"residence_document": resp.json()["data"]["file_path"]}
-        resp2 = LoanAPI().patch_loan_request(loan_id, "info_completion__residence", data)
-        ok2 = (resp2.status_code == 200)
-        set_exec_status("test_partial_upload_residence", ok2)
-        assert ok2
-    else:
-        set_exec_status("test_partial_upload_residence", False)
-        assert False, "Upload failed"
+        if ok1:
+            file_path_residence = resp.json()["data"]["file_path"]
+            data = {"residence_document": resp.json()["data"]["file_path"]}
+            resp2 = LoanAPI().patch_loan_request(loan_id, "info_completion__residence", data)
+            ok2 = (resp2.status_code == 200)
+            set_exec_status("test_partial_upload_residence", ok2)
+            assert ok2
+        else:
+            set_exec_status("test_partial_upload_residence", False)
+            assert False, "Upload failed"
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_partial_upload_residence" , str(e))
+        raise e
 
 def test_complete_residence_step():
-    data = {
-        "address": "کرج",
-        "city_id": 229,
-        "post_code": "3135783604",
-        "residence_document": file_path_residence,
-        "work_address": "کرج",
-        "housing_status": "OWNER",
-    }
-    resp = LoanAPI().post_loan_request(loan_id, "info_completion__residence", data)
-    set_exec_status("test_complete_residence_step", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        data = {
+            "address": "کرج",
+            "city_id": 229,
+            "post_code": "3135783604",
+            "residence_document": file_path_residence,
+            "work_address": "کرج",
+            "housing_status": "OWNER",
+        }
+        resp = LoanAPI().post_loan_request(loan_id, "info_completion__residence", data)
+        set_exec_status("test_complete_residence_step", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_complete_residence_step" , str(e))
+        raise e
 
 # ====================== Step 6: Info Completion Occupation ======================
 
 def test_get_occupation_data():
-    resp = LoanAPI().get_loan_request(loan_id, "info_completion__occupation")
-    set_exec_status("test_get_occupation_data", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().get_loan_request(loan_id, "info_completion__occupation")
+        set_exec_status("test_get_occupation_data", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_get_occupation_data",str(e))
+        raise e 
 
 file_path_occupation = list()
 
 @pytest.mark.parametrize("step", [("work_reference_letter"), ("last_payment_receipt")])
 def test_partial_upload_occupation(step):
-    global file_path_occupation
-    resp = upload_image("low_size.png", step, "png")
-    ok1 = (resp.status_code == 200)
+    try:
+        global file_path_occupation
+        resp = upload_image("low_size.png", step, "png")
+        ok1 = (resp.status_code == 200)
 
-    if ok1:
-        file_path_occupation.append(resp.json()["data"]["file_path"])
-        set_exec_status("test_partial_upload_occupation", True)
-        assert True
-    else:
-        set_exec_status("test_partial_upload_occupation", False)
-        assert False, "Upload failed"
+        if ok1:
+            file_path_occupation.append(resp.json()["data"]["file_path"])
+            set_exec_status("test_partial_upload_occupation", True)
+            assert True
+        else:
+            set_exec_status("test_partial_upload_occupation", False)
+            assert False, "Upload failed"
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_partial_upload_occupation" , str(e))
+        raise e 
 
 def test_complete_occupation_step():
-    data = {
-        "work_reference_letter": file_path_occupation[0],
-        "last_payment_receipt": file_path_occupation[1],
-        "average_income": "FIFTEEN_TO_TWENTY",
-    }
-    resp = LoanAPI().post_loan_request(loan_id, "info_completion__occupation", data)
-    set_exec_status("test_complete_occupation_step", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        data = {
+            "work_reference_letter": file_path_occupation[0],
+            "last_payment_receipt": file_path_occupation[1],
+            "average_income": "FIFTEEN_TO_TWENTY",
+        }
+        resp = LoanAPI().post_loan_request(loan_id, "info_completion__occupation", data)
+        set_exec_status("test_complete_occupation_step", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_complete_occupation_step" , str(e))
+        raise e
 
 # ====================== Step 7: Info Completion Branch ======================
 
 def test_get_branch_step_data():
-    resp = LoanAPI().get_loan_request(loan_id, "info_completion__branch")
-    set_exec_status("test_get_branch_step_data", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().get_loan_request(loan_id, "info_completion__branch")
+        set_exec_status("test_get_branch_step_data", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e:
+        add_failure_note_to_tcms("test_get_branch_step_data" , str(e))
+        raise e
 
 def test_complete_branch_step():
-    resp = LoanAPI().post_loan_request(loan_id, "info_completion__branch", {"branch_id": 7})
-    set_exec_status("test_complete_branch_step", resp.status_code == 200)
-    assert resp.status_code == 200
+    try:
+        resp = LoanAPI().post_loan_request(loan_id, "info_completion__branch", {"branch_id": 7})
+        set_exec_status("test_complete_branch_step", resp.status_code == 200)
+        assert resp.status_code == 200
+    except AssertionError as e :
+        add_failure_note_to_tcms("test_complete_branch_step",str(e))
+        raise e
 
-rpc.TestRun.update(runner_id, {
-    'stop_date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-})
+def stop_test_runner():
+    rpc.TestRun.update(runner_id , {
+        'stop_date' : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
+
