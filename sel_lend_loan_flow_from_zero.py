@@ -180,15 +180,8 @@ class LoanAutomation:
         sleep(5)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
-        set_exec_status_manualy(rpc,runner_id,"continue_button","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"continue_button" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"login_and_navigate","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"login_and_navigate" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
-
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
 
     def _step_auth_otp(self):
@@ -218,10 +211,8 @@ class LoanAutomation:
         self._upload_identity_residence_job_docs()
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" ,"Upload_job_documents_page" )
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
-        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_credit_rank(self):
         self._login_and_navigate()
@@ -232,10 +223,7 @@ class LoanAutomation:
         self._upload_identity_residence_job_docs()
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
-        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_loan_request(self):
         self._login_and_navigate()
@@ -257,6 +245,8 @@ class LoanAutomation:
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/","Upload_job_documents_page")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_identity(self):
         self._login_and_navigate()
@@ -273,8 +263,8 @@ class LoanAutomation:
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" ,"Upload_job_documents_page")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
-        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_residence(self):
         self._login_and_navigate()
@@ -286,16 +276,25 @@ class LoanAutomation:
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
-        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
-        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
-        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
-
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_branch(self):
-        self._login_and_navigate()
+        get_url(self.driver, URL)
+        self.check_current_url(URL , "get_URL")
+        sleep(5)
+        login(self.driver, PHONE_NUMBER)
+        sleep(5)
+        otp_code(self.driver)
+        sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "login")
+        loan_request(self.driver, "Down")
+        sleep(3)
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_request_down_button")
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
         sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
+
 
 
 if __name__ == "__main__":
