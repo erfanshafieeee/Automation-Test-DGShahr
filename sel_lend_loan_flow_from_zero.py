@@ -99,7 +99,7 @@ class LoanAutomation:
             set_exec_status_manualy(rpc,runner_id,"continue_button","PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
             set_exec_status_manualy(rpc,runner_id,"continue_button","FAILED")
-            add_failure_note_to_tcms(rpc , runner_id , "continue_button" , str(e))
+            add_failure_comment_to_tcms(rpc , runner_id , "continue_button" , str(e))
         sleep(3)
 
     def _select_guarantee_and_next(self):
@@ -141,7 +141,6 @@ class LoanAutomation:
     def _step_fresh_start(self):
         get_url(self.driver, URL)
         self.check_current_url(URL , "get_URL")
-        add_comment_to_tcms(rpc , runner_id ,"get_URL" , "In this senario we dont have this testcase")
         sleep(5)
         login(self.driver, PHONE_NUMBER)
         sleep(5)
@@ -163,7 +162,7 @@ class LoanAutomation:
             set_exec_status_manualy(rpc,runner_id,"cross_button","PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
             set_exec_status_manualy(rpc,runner_id,"cross_button","FAILED")
-            add_failure_note_to_tcms(rpc , runner_id , "cross_button" , str(e))
+            add_failure_comment_to_tcms(rpc , runner_id , "cross_button" , str(e))
         
         while not is_credit_approved(self.driver):
             sleep(5)
@@ -203,7 +202,7 @@ class LoanAutomation:
             set_exec_status_manualy(rpc , runner_id , "cross_button" , "PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
             set_exec_status_manualy(rpc , runner_id , "cross_button" , "FAILED")
-            add_failure_note_to_tcms(rpc , runner_id , "cross_button" , str(e))
+            add_failure_comment_to_tcms(rpc , runner_id , "cross_button" , str(e))
 
         while not is_credit_approved(self.driver):
             sleep(5)
@@ -301,3 +300,7 @@ class LoanAutomation:
 
 if __name__ == "__main__":
     LoanAutomation().run()
+    
+    rpc.TestRun.update(runner_id , {
+        'stop_date' : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
