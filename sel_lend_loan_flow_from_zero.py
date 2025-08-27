@@ -63,9 +63,7 @@ class LoanAutomation:
         """Function to check if the current URL matches the expected URL and print a message."""
         current_url = self.driver.current_url
         print(current_url)
-        if current_url.startswith(expected_url):
-            set_exec_status(rpc , runner_id , testcase_name , True)
-            print(f"###################### {testcase_name} = pass ###################")
+        set_exec_status(rpc , runner_id ,testcase_name, current_url.startswith(expected_url))
 
     def run(self):
         step_methods = {
@@ -100,7 +98,8 @@ class LoanAutomation:
             self.driver.find_element(By.XPATH, '/html/body/div/div[2]/div/div[2]/div/a/button').click()
             set_exec_status_manualy(rpc,runner_id,"continue_button","PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
-            set_exec_status_manualy(rpc,runner_id,"continue_button","FAILED" , e)
+            set_exec_status_manualy(rpc,runner_id,"continue_button","FAILED")
+            add_failure_note_to_tcms(rpc , runner_id , "continue_button" , str(e))
         sleep(3)
 
     def _select_guarantee_and_next(self):
@@ -142,6 +141,7 @@ class LoanAutomation:
     def _step_fresh_start(self):
         get_url(self.driver, URL)
         self.check_current_url(URL , "get_URL")
+        add_comment_to_tcms(rpc , runner_id ,"get_URL" , "In this senario we dont have this testcase")
         sleep(5)
         login(self.driver, PHONE_NUMBER)
         sleep(5)
@@ -155,21 +155,22 @@ class LoanAutomation:
         loan_request(self.driver, "Down")
         self.check_current_url("https://alpha.dgstack.ir/lend/user/personal-info/" , "loan_request_down_button")
         primary_info(self.driver, NATIONAL_CODE, "1383", "آبان", "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
+        sleep(5)
         self.check_current_url("https://alpha.dgstack.ir/lend/user/credit-rank/" , "primary_info_page")
         sleep(10)
         try:
             self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
             set_exec_status_manualy(rpc,runner_id,"cross_button","PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
-            set_exec_status_manualy(rpc,runner_id,"cross_button","FAILED" , e)
+            set_exec_status_manualy(rpc,runner_id,"cross_button","FAILED")
+            add_failure_note_to_tcms(rpc , runner_id , "cross_button" , str(e))
         
         while not is_credit_approved(self.driver):
             sleep(5)
-            set_exec_status_manualy(rpc)
-            print("###################### is_credit_approved = RUNNING ###################")
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "RUNNING")
         sleep(3)
         if is_credit_approved(self.driver) == True:
-            print("###################### is_credit_approved = pass ###################")
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "PASSED")
         next_button(self.driver)
         #todo : if next button error
         sleep(3)
@@ -177,25 +178,39 @@ class LoanAutomation:
         self._select_guarantee_and_next()
         self.check_current_url("https://alpha.dgstack.ir/lend/user/identity-document/" , "gurantee_page")
         self._upload_identity_residence_job_docs()
+        sleep(5)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        set_exec_status_manualy(rpc,runner_id,"continue_button","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"continue_button" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"login_and_navigate","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"login_and_navigate" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
+
 
 
     def _step_auth_otp(self):
         self._login_and_navigate()
-        self.check_current_url("https://alpha.dgstack.ir/lend/user/credit-rank/" , "login_and_navigate_to_credit_rank")
+        self.check_current_url("https://alpha.dgstack.ir/lend/user/credit-rank/" , "login_and_navigate")
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_credit_rank")
+
         sleep(10)
         try:
             self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
-            print("###################### cross_button = pass ###################")
+            set_exec_status_manualy(rpc , runner_id , "cross_button" , "PASSED")
         except (NoSuchElementException, ElementClickInterceptedException) as e:
-            print("###################### cross_button = fail ###################", e)
+            set_exec_status_manualy(rpc , runner_id , "cross_button" , "FAILED")
+            add_failure_note_to_tcms(rpc , runner_id , "cross_button" , str(e))
 
         while not is_credit_approved(self.driver):
             sleep(5)
-            print("###################### is_credit_approved = RUNNING ###################")
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "RUNNING")
         sleep(3)
         if is_credit_approved(self.driver) == True:
-            print("###################### is_credit_approved = pass ###################")
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "PASSED")
         next_button(self.driver)
         sleep(3)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-request/" , "credit_rank_page" )
@@ -203,18 +218,30 @@ class LoanAutomation:
         self.check_current_url("https://alpha.dgstack.ir/lend/user/identity-document/" ,"gurantee_page" )
         self._upload_identity_residence_job_docs()
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" ,"Upload_job_documents_page" )
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
 
     def _step_credit_rank(self):
         self._login_and_navigate()
-        self.check_current_url("https://alpha.dgstack.ir/lend/loan-request/" ,"login_and_navigate_to_loan_request" )
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-request/" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_loan_request")
         self._select_guarantee_and_next()
         self.check_current_url("https://alpha.dgstack.ir/lend/user/identity-document/" ,"gurantee_page")
         self._upload_identity_residence_job_docs()
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
 
     def _step_loan_request(self):
         self._login_and_navigate()
-        self.check_current_url("https://alpha.dgstack.ir/lend/user/identity-document/" ,"login_and_navigate_to_identity_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/user/identity-document/" ,"login_and_navigate")
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_identity_page")
         Upload_identity_documents(self.driver, self.file_path_low_size)
         sleep(5)
         next_button(self.driver)
@@ -230,10 +257,12 @@ class LoanAutomation:
         next_button(self.driver)
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/","Upload_job_documents_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
 
     def _step_identity(self):
         self._login_and_navigate()
-        self.check_current_url("https://alpha.dgstack.ir/lend/residence-document/" , "login_and_navigate_to_residence-document")
+        self.check_current_url("https://alpha.dgstack.ir/lend/residence-document/" , "login_and_navigate")
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_residence_document")
         Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(self.driver)
@@ -244,15 +273,24 @@ class LoanAutomation:
         next_button(self.driver)
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" ,"Upload_job_documents_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
 
     def _step_residence(self):
         self._login_and_navigate()
-        self.check_current_url("https://alpha.dgstack.ir/lend/employment-document/" , "login_and_navigate_to_employment-document")
+        self.check_current_url("https://alpha.dgstack.ir/lend/employment-document/" , "login_and_navigate")
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_employment_document")
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
         next_button(self.driver)
         sleep(10)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "Upload_job_documents_page")
+        self.check_current_url("https://alpha.dgstack.ir/lend/loan-info/" , "loan_info_last_page")
+        set_exec_status_manualy(rpc,runner_id,"identity_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"identity_documents_page" , "In this senario we dont have this testcase")
+        set_exec_status_manualy(rpc,runner_id,"Residence_documents_page","BLOCKED")
+        add_comment_to_tcms(rpc , runner_id ,"Residence_documents_page" , "In this senario we dont have this testcase")
 
 
     def _step_branch(self):
