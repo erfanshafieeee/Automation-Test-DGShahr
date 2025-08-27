@@ -55,3 +55,17 @@ def add_comment_to_tcms(rpc, runner_id, test_case_summary: str, comment: str):
     # Log the success
     print(f"[TCMS] Comment added to Test Case '{test_case_summary}': {comment}")
 
+def update_tests_not_in_scenario(rpc, runner_id: int):
+    """Find TestExecutions with status= IDLE, add a comment, and change their status to WAIVED."""
+    executions = rpc.TestExecution.filter({"run_id": runner_id, "status": tcms_maps.EXECUTION_STATUSES["IDLE"]})
+    
+    if not executions:
+        print(f"[TCMS] No TestExecutions found with status=IDLE in run_id={runner_id}.")
+        return
+
+    for e in executions:
+        rpc.TestExecution.add_comment(e['id'], "In this scenario we dont have this testcase")
+        
+        rpc.TestExecution.update(e['id'], {"status":tcms_maps.EXECUTION_STATUSES["WAIVED"]})
+        
+        print(f"[TCMS] TestExecution {e['id']} updated: Comment added and status changed to WAIVED.")
