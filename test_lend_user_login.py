@@ -114,7 +114,7 @@ def test_login_incorrect_otp():
     assert response.status_code == 401  # Ensuring the login fails
 
 # -------------------- After Test Run --------------------
-rpc.TestRun.update(runner_id, {
-    'stop_date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-})
-print(f"Test run with ID {runner_id} stopped and updated.")
+def stop_test_runner():
+    rpc.TestRun.update(runner_id , {
+        'stop_date' : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
