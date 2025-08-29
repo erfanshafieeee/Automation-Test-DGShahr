@@ -5,9 +5,46 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-
-from constants import NATIONAL_CODE, POSTAL_CODE, URL, PHONE_NUMBER, ASSURANCE_CODE
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from constants import *
 from functions import *
+from TCMS_tools.tcms_fuctions import *
+from tcms_api import TCMS
+import TCMS_tools.tcms_maps as tcms_maps
+import datetime
+
+# TCMS setup
+tcms_url = TCMS_URL
+tcms_username = TCMS_USERNAME
+tcms_password = TCMS_PASSWORD
+rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
+
+# -------------------- create Test Run & add cases --------------------
+now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+test_run_data = {
+    "summary": f"selenium_lend_lown_flow {now_str}",
+    "plan": tcms_maps.TEST_PLANS["LEND_USER_FRONTEND"],
+    "build": tcms_maps.BUILDS_BY_PRODUCT[str(tcms_maps.PRODUCTS["LEND_USER"])]["unspecified"],
+    "manager": tcms_maps.USERS["dgstack"],
+    "product": tcms_maps.PRODUCTS["LEND_USER"],
+    "start_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+}
+
+# Create the test run
+new_test_run = rpc.TestRun.create(test_run_data)
+print("New Test Run created:", new_test_run)
+
+# Fetch the runner_id for the created test run
+search_name = test_run_data["summary"]
+runs = rpc.TestRun.filter({"summary": search_name})
+for r in runs:
+    runner_id = r["id"]
+
+# Add all cases from the plan to the run
+test_cases = rpc.TestCase.filter({"plan": tcms_maps.TEST_PLANS["LEND_USER_FRONTEND"]})
+for case in test_cases:
+    rpc.TestRun.add_case(runner_id, case["id"])
 
 
 class GuarantyAutomation:
@@ -21,6 +58,12 @@ class GuarantyAutomation:
         options.add_argument('--log-level=3')
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    
+    def check_current_url(self, expected_url, testcase_name):
+        """Function to check if the current URL matches the expected URL and print a message."""
+        current_url = self.driver.current_url
+        print(current_url)
+        set_exec_status(rpc , runner_id ,testcase_name, current_url.startswith(expected_url))
 
     def run(self):
         step_methods = {
@@ -40,12 +83,16 @@ class GuarantyAutomation:
 
     def _login_and_navigate(self):
         get_url(self.driver, URL)
+        self.check_current_url(URL , "get_URL")
         sleep(5)
         login(self.driver, PHONE_NUMBER)
         sleep(5)
         otp_code(self.driver)
         sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "login")
         guaranty_request(self.driver)
+        #TODO guaranty request
+        # self.check_current_url()
         sleep(3)
 
     def _upload_documents(self):
@@ -54,11 +101,13 @@ class GuarantyAutomation:
         next_button(self.driver)
 
         sleep(3)
+        self.check_current_url("https://alpha.dgstack.ir/lend/residence-document/" , "Upload_identity_documents")
         Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(self.driver)
 
         sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/employment-document/" , "Residence_documents")
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
         next_button(self.driver)
@@ -66,6 +115,7 @@ class GuarantyAutomation:
 
     def _step_fresh_start(self):
         self._login_and_navigate()
+        
         guaranty_code(self.driver, ASSURANCE_CODE)
         sleep(5)
 
