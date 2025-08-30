@@ -23,8 +23,8 @@ rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
 now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
 test_run_data = {
-    "summary": f"selenium_lend_lown_flow {now_str}",
-    "plan": tcms_maps.TEST_PLANS["LEND_USER_FRONTEND"],
+    "summary": f"selenium_lend_assurancce_flow {now_str}",
+    "plan": tcms_maps.TEST_PLANS["LEND_USER_ASSURANCE_FRONTEND"],
     "build": tcms_maps.BUILDS_BY_PRODUCT[str(tcms_maps.PRODUCTS["LEND_USER"])]["unspecified"],
     "manager": tcms_maps.USERS["dgstack"],
     "product": tcms_maps.PRODUCTS["LEND_USER"],
@@ -42,7 +42,7 @@ for r in runs:
     runner_id = r["id"]
 
 # Add all cases from the plan to the run
-test_cases = rpc.TestCase.filter({"plan": tcms_maps.TEST_PLANS["LEND_USER_FRONTEND"]})
+test_cases = rpc.TestCase.filter({"plan": tcms_maps.TEST_PLANS["LEND_USER_ASSURANCE_FRONTEND"]})
 for case in test_cases:
     rpc.TestRun.add_case(runner_id, case["id"])
 
@@ -91,23 +91,21 @@ class GuarantyAutomation:
         sleep(5)
         self.check_current_url("https://alpha.dgstack.ir/lend/" , "login")
         guaranty_request(self.driver)
-        #TODO guaranty request
-        # self.check_current_url()
         sleep(3)
 
     def _upload_documents(self):
         Upload_identity_documents(self.driver, self.file_path_low_size)
         sleep(5)
         next_button(self.driver)
-
         sleep(3)
-        self.check_current_url("https://alpha.dgstack.ir/lend/residence-document/" , "Upload_identity_documents")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/residence-document" , "Upload_identity_documents")
+
         Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(self.driver)
 
         sleep(5)
-        self.check_current_url("https://alpha.dgstack.ir/lend/employment-document/" , "Residence_documents")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/employment-document" , "Residence_documents")
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
         next_button(self.driver)
@@ -115,68 +113,125 @@ class GuarantyAutomation:
 
     def _step_fresh_start(self):
         self._login_and_navigate()
-        
+        self.check_current_url("https://alpha.dgstack.ir/lend/" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guaranty_code")
+
         guaranty_code(self.driver, ASSURANCE_CODE)
         sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/personal-info/" , "guaranty_code")
 
         primary_info(self.driver, NATIONAL_CODE, "1383", "آبان", "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
+        sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/credit-rank/" ,"primary_info_page")
         sleep(10)
 
-        self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+        try:
+            self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+            set_exec_status_manualy(rpc,runner_id,"cross_button","PASSED")
+        except (NoSuchElementException, ElementClickInterceptedException) as e:
+            set_exec_status_manualy(rpc,runner_id,"cross_button","FAILED")
+            add_failure_comment_to_tcms(rpc , runner_id , "cross_button" , str(e))
+
+
         while not is_credit_approved_in_guaranty_request(self.driver):
             sleep(5)
-
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "RUNNING")
         sleep(3)
+        if is_credit_approved_in_guaranty_request(self.driver) == True:
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "PASSED")
+        #TODO : if next button error
         next_button(self.driver)
         sleep(3)
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/identity-document" , "credit_rank_page")
         self._upload_documents()
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "Upload_job_documents_page")
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_credit_rank(self):
         self._login_and_navigate()
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guarantor_list")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" , "guarantor-list")
         continue_process(self.driver)
         sleep(10)
-        self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+        try:
+            self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div/div[1]/button').click()
+            set_exec_status_manualy(rpc,runner_id,"cross_button","PASSED")
+        except (NoSuchElementException, ElementClickInterceptedException) as e:
+            set_exec_status_manualy(rpc,runner_id,"cross_button","FAILED")
+            add_failure_comment_to_tcms(rpc , runner_id , "cross_button" , str(e))
 
-        while not is_credit_approved(self.driver):
+        while not is_credit_approved_in_guaranty_request(self.driver):
             sleep(5)
-
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "RUNNING")
         sleep(3)
+        if is_credit_approved_in_guaranty_request(self.driver) == True:
+            set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "PASSED")
+        #TODO : if next button error
         next_button(self.driver)
         sleep(3)
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/identity-document" , "credit_rank_page")
         self._upload_documents()
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "Upload_job_documents_page") 
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_assurance(self):
         self._login_and_navigate()
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guarantor_list")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" , "guarantor-list")
         continue_process(self.driver)
         self._upload_documents()
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "Upload_job_documents_page")
+        sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_identity(self):
         self._login_and_navigate()
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guarantor_list")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" , "guarantor-list")
         continue_process(self.driver)
 
         Residence_documents(self.driver, POSTAL_CODE, "'مالک'", "'تهران'", "'تهران'", "'آدرس تست'", self.file_path_low_size, "'آدرس تست'")
         sleep(3)
         next_button(self.driver)
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor/employment-document" , "Residence_documents")
 
         sleep(5)
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
         next_button(self.driver)
+        sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "Upload_job_documents_page")
         sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_residence(self):
         self._login_and_navigate()
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guarantor_list")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" , "guarantor-list")
         continue_process(self.driver)
 
         sleep(5)
         Upload_job_documents(self.driver, "'۱۵ تا ۲۰ میلیون تومان'", self.file_path_low_size)
         sleep(3)
         next_button(self.driver)
+        sleep(5)
+        self.check_current_url("https://alpha.dgstack.ir/lend/" , "Upload_job_documents_page")
         sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
     def _step_document_check(self):
         self._login_and_navigate()
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" ,"login_and_navigate" )
+        add_comment_to_tcms(rpc , runner_id , "login_and_navigate" , "login_and_navigate_to_guarantor_list")
+        self.check_current_url("https://alpha.dgstack.ir/lend/guarantor-list" , "guarantor-list")
         sleep(10)
+        update_tests_not_in_scenario(rpc , runner_id)
 
 
 if __name__ == "__main__":
