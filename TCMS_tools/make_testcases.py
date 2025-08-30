@@ -60,6 +60,8 @@ TEST_CASE_NAMES = [
     "identity_documents_page",
     "Residence_documents_page",
     "loan_info_last_page"
+    "guaranty_code",
+    "guarantor-list"
 ]
 
 # Default values from tcms_maps
