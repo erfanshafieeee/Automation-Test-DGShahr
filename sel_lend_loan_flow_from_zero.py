@@ -23,7 +23,7 @@ rpc = TCMS(tcms_url, tcms_username, tcms_password).exec
 now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
 test_run_data = {
-    "summary": f"selenium_lend_lown_flow {now_str}",
+    "summary": f"selenium_lend_loan_flow {now_str}",
     "plan": tcms_maps.TEST_PLANS["LEND_USER_FRONTEND"],
     "build": tcms_maps.BUILDS_BY_PRODUCT[str(tcms_maps.PRODUCTS["LEND_USER"])]["unspecified"],
     "manager": tcms_maps.USERS["dgstack"],
@@ -171,7 +171,7 @@ class LoanAutomation:
         if is_credit_approved(self.driver) == True:
             set_exec_status_manualy(rpc , runner_id ,"is_credit_approved" , "PASSED")
         next_button(self.driver)
-        #todo : if next button error
+        #TODO : if next button error
         sleep(3)
         self.check_current_url("https://alpha.dgstack.ir/lend/loan-request/" , "credit_rank_page")
         self._select_guarantee_and_next()
