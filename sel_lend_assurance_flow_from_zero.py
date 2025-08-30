@@ -236,3 +236,7 @@ class GuarantyAutomation:
 
 if __name__ == "__main__":
     GuarantyAutomation().run()
+
+    rpc.TestRun.update(runner_id , {
+        'stop_date' : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    })
