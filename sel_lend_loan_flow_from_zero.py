@@ -64,6 +64,17 @@ class LoanAutomation:
         current_url = self.driver.current_url
         print(current_url)
         set_exec_status(rpc , runner_id ,testcase_name, current_url.startswith(expected_url))
+    
+    def convert_birthdate_to_detail(birth_date: str):
+        date_parts = birth_date.split('/')
+        year, month, day = map(int, date_parts)
+
+        months_farsi = {
+            1: "فروردین", 2: "اردیبهشت", 3: "خرداد", 4: "تیر", 
+            5: "مرداد", 6: "شهریور", 7: "مهر", 8: "آبان", 
+            9: "آذر", 10: "دی", 11: "بهمن", 12: "اسفند"
+        }
+        return str(year), str(months_farsi[month]) , str(day)
 
     def run(self):
         step_methods = {
@@ -153,7 +164,8 @@ class LoanAutomation:
         sleep(2)
         loan_request(self.driver, "Down")
         self.check_current_url("https://alpha.dgstack.ir/lend/user/personal-info/" , "loan_request_down_button")
-        primary_info(self.driver, NATIONAL_CODE, "1383", "آبان", "24", "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
+        year , month , day = self.convert_birthdate_to_detail(BIRTH_DATE)
+        primary_info(self.driver, NATIONAL_CODE, year,month,day, "'کارمند رسمی (شرکت دولتی)'", "'سایر'")
         sleep(5)
         self.check_current_url("https://alpha.dgstack.ir/lend/user/credit-rank/" , "primary_info_page")
         sleep(10)
