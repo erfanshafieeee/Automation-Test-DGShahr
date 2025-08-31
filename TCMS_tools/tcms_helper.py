@@ -1,8 +1,8 @@
+import sys
+sys.path.append("C:/Users/user/Desktop/code/automation-test")
 from constants import *
-from functions import *
 from TCMS_tools.tcms_fuctions import *
 from tcms_api import TCMS
-import TCMS_tools.tcms_maps as tcms_maps
 
 # TCMS setup
 tcms_url = TCMS_URL
@@ -14,7 +14,8 @@ methods = rpc.system.listMethods()
 print("متدهای موجود روی سرور:")
 for m in methods:
     print(m)
+    help = rpc.system.methodHelp(str(m))
+    print(help)
+    
 
-help = rpc.system.methodHelp("TestExecution.add_comment")
-print(help)
 
