@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import psycopg2
 from time import sleep
-
+from constants import *
 
 # Navigate to specified URL
 def get_url(driver, url):
@@ -324,11 +324,11 @@ def Upload_job_documents(driver, Average_income, file_path):
 def get_request_step_loan():
     try:
         conn = psycopg2.connect(
-            host="db.dgstack.ir",
-            port="5433",
-            database="lend",
-            user="lend_developer",
-            password="!@#develop123"
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USERNAME,
+            password=DB_PASSWORD
         )
         if conn and conn.status == psycopg2.extensions.STATUS_READY:
             print("Successfully connected to the database.")
@@ -341,13 +341,15 @@ def get_request_step_loan():
         SELECT l.request_step
         FROM user_user u
         LEFT JOIN lend_loan l ON u.id = l.user_id
-        WHERE u.phone_number = '09332766613'
+        WHERE u.phone_number = %s
           AND u.is_deleted = false
           AND (l.is_deleted = false)
         LIMIT 1;
         """
+        phone_number = PHONE_NUMBER
 
-        cursor.execute(query_request_step)
+        cursor.execute(query_request_step , (phone_number,))
+        
 
         result = cursor.fetchone()
 
@@ -379,11 +381,11 @@ def get_request_step_loan():
 def get_request_step_guaranty():
     try:
         conn = psycopg2.connect(
-            host="db.dgstack.ir",
-            port="5433",
-            database="lend",
-            user="lend_developer",
-            password="!@#develop123"
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USERNAME,
+            password=DB_PASSWORD
         )
         if conn and conn.status == psycopg2.extensions.STATUS_READY:
             print("Successfully connected to the database.")
@@ -396,12 +398,13 @@ def get_request_step_guaranty():
         SELECT a.request_step
         FROM user_user u
         LEFT JOIN assurance_assurance a ON u.id = a.user_id
-        WHERE u.phone_number = '09332766613'
+        WHERE u.phone_number = %s
           AND u.is_deleted = false
           AND (a.is_deleted = false)
         LIMIT 1;
         """
-        cursor.execute(query_request_step_guaranty)
+        phone_number = PHONE_NUMBER
+        cursor.execute(query_request_step_guaranty, (phone_number,))
 
         result = cursor.fetchone()
 
@@ -431,11 +434,11 @@ def get_request_step_guaranty():
 def set_as_new_loan_user():
     try:
         conn = psycopg2.connect(
-            host="db.dgstack.ir",
-            port="5433",
-            database="lend",
-            user="lend_developer",
-            password="!@#develop123"
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USERNAME,
+            password=DB_PASSWORD
         )
         if conn and conn.status == psycopg2.extensions.STATUS_READY:
             print("Successfully connected to the database.")
@@ -448,7 +451,7 @@ def set_as_new_loan_user():
         SET is_deleted = true
         WHERE phone_number = %s;
         """
-        phone_number = '09332766613'
+        phone_number = PHONE_NUMBER
 
         cursor.execute(query_set_as_new_user, (phone_number,))
         conn.commit()  # Important: Commit the transaction
@@ -473,11 +476,11 @@ def set_as_new_loan_user():
 def set_as_new_assurance_user():
     try:
         conn = psycopg2.connect(
-            host="db.dgstack.ir",
-            port="5433",
-            database="lend",
-            user="lend_developer",
-            password="!@#develop123"
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USERNAME,
+            password=DB_PASSWORD
         )
         if conn and conn.status == psycopg2.extensions.STATUS_READY:
             print("Successfully connected to the database.")
@@ -515,11 +518,11 @@ def set_as_new_assurance_user():
 def set_pro_user():
     try:
         conn = psycopg2.connect(
-            host="db.dgstack.ir",
-            port="5433",
-            database="lend",
-            user="lend_developer",
-            password="!@#develop123"
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USERNAME,
+            password=DB_PASSWORD
         )
         if conn and conn.status == psycopg2.extensions.STATUS_READY:
             print("Successfully connected to the database.")
@@ -532,9 +535,9 @@ def set_pro_user():
         SET credit_rank = 'A', credit_score = 660 , status = 'document_check'
         FROM user_user
         WHERE assurance_assurance.user_id = user_user.id
-        AND user_user.phone_number = '09332766613';
+        AND user_user.phone_number = %s;
         """
-        phone_number = '09332766613'
+        phone_number = PHONE_NUMBER
 
         cursor.execute(query_set_as_pro_user, (phone_number,))
         conn.commit()  # Important: Commit the transaction
