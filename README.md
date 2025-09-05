@@ -135,4 +135,9 @@ python3 main.py
 
 The project integrates with Kiwi TCMS for test case management and reporting. Upon test execution, results are automatically uploaded to the Kiwi TCMS instance specified in the integration script. This allows for centralized tracking of test outcomes and facilitates test case management.
 
+Built on **`tcms_api`**: this integration uses the official client library. Since there wasn’t a clear, developer-friendly reference for `tcms_api`, I authored a **comprehensive guide** that covers prerequisites, installation, connection & authentication, common usage patterns, and a **complete, no-omissions API reference**. The guide also walks through how to wire your test suite to Kiwi TCMS step-by-step with Python examples.
+
+📖 Read the guide: **[End-to-End Guide: Connecting Your Tests to Kiwi TCMS via tcms_api](https://github.com/erfanshafieeee/Automation-Test-DGShahr/blob/main/TCMS_tools/DOCUMENT.md)**.
+
+
 
