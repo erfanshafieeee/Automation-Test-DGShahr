@@ -1,69 +1,69 @@
-# End-to-End Guide: Connecting Your Tests to **Kiwi TCMS** via **tcms\_api**
+# 🚀 End-to-End Guide: Connecting Your Tests to **Kiwi TCMS** via **tcms\_api**
 
-> A practical, structured handbook for integrating your codebase with Kiwi TCMS using the `tcms_api` client. You’ll find prerequisites, setup, usage patterns, security/debug tips, and a **complete API reference** (everything you provided is included verbatim—nothing omitted).
-> Example language: **Python**.
-
----
-
-## Table of Contents
-
-* [What is Kiwi TCMS?](#what-is-kiwi-tcms)
-* [What is `tcms_api`?](#what-is-tcms_api)
-* [Prerequisites & Installation](#prerequisites--installation)
-* [Connection & Authentication](#connection--authentication)
-* [Common Usage Patterns](#common-usage-patterns)
-* [Security & Debugging Tips](#security--debugging-tips)
-* [Complete API Reference (by Entity)](#complete-api-reference-by-entity)
-
-  * Attachment
-  * Auth
-  * Bug
-  * Build
-  * Category
-  * Classification
-  * Component
-  * Environment
-  * KiwiTCMS
-  * Markdown
-  * PlanType
-  * Priority
-  * Product
-  * Tag
-  * TestCase
-  * TestCaseStatus
-  * TestExecution
-  * TestExecutionStatus
-  * TestPlan
-  * TestRun
-  * Testing
-  * User
-  * Version
-  * system.\*
-* [Appendix: Quick Triage Checklist](#appendix-quick-triage-checklist)
+> 📘 A practical, structured handbook for integrating your codebase with Kiwi TCMS using the `tcms_api` client. You’ll find prerequisites, setup, usage patterns, security/debug tips, and a **complete API reference** (everything you provided is included verbatim—nothing omitted).
+> 🐍 Example language: **Python**.
 
 ---
 
-## What is Kiwi TCMS?
+## 📋 Table of Contents
+
+* [🌐 What is Kiwi TCMS?](#-what-is-kiwi-tcms)
+* [🐍 What is `tcms_api`?](#-what-is-tcms_api)
+* [⚙️ Prerequisites & Installation](#️-prerequisites--installation)
+* [🔐 Connection & Authentication](#-connection--authentication)
+* [🛠️ Common Usage Patterns](#️-common-usage-patterns)
+* [🧰 Security & Debugging Tips](#-security--debugging-tips)
+* [📚 Complete API Reference (by Entity)](#-complete-api-reference-by-entity)
+
+  * 📎 Attachment
+  * 🔐 Auth
+  * 🐞 Bug
+  * 🧱 Build
+  * 🗂️ Category
+  * 🏷️ Classification
+  * 🧩 Component
+  * 🌳 Environment
+  * 🥝 KiwiTCMS
+  * ✍️ Markdown
+  * 🗺️ PlanType
+  * ⬆️ Priority
+  * 📦 Product
+  * 🏷️ Tag
+  * 🧪 TestCase
+  * 🔄 TestCaseStatus
+  * ▶️ TestExecution
+  * 🔁 TestExecutionStatus
+  * 🗒️ TestPlan
+  * 🏃 TestRun
+  * 📈 Testing
+  * 👤 User
+  * 🔖 Version
+  * 🧰 system.\*
+* [🧾 Appendix: Quick Triage Checklist](#-appendix-quick-triage-checklist)
+
+---
+
+## 🌐 What is Kiwi TCMS?
 
 **Kiwi TCMS** is an open-source test management system for organizing test plans, test cases, runs, and execution results. It helps with quality tracking, team collaboration, reporting, and easy integrations.
 
-## What is `tcms_api`?
+## 🐍 What is `tcms_api`?
 
 `tcms_api` is a client library (commonly XML-RPC/JSON-RPC based) that lets you operate Kiwi TCMS from **Python**: CRUD on core objects, file attachments, tags, comments, bug reporting, test execution updates, and more.
 
 ---
 
-## Prerequisites & Installation
+## ⚙️ Prerequisites & Installation
 
 ```bash
 pip install tcms-api
 ```
 
-> You’ll need the Kiwi TCMS server URL and valid credentials (username/password or token—depending on server configuration).
+> ℹ️ You’ll need the Kiwi TCMS server URL and valid credentials (username/password or token—depending on server configuration).
 
 ---
 
-## Connection & Authentication
+## 🔐 Connection & Authentication
 
 A simple bootstrap pattern:
 
@@ -82,17 +82,17 @@ session_id = client.Auth.login("user123", "password123")
 client.Auth.logout()
 ```
 
-> Note: Namespaced classes are typically accessible via `client` (e.g., `client.TestPlan.create`). If your library import differs, follow your local pattern.
+> 💡 Note: Namespaced classes are typically accessible via `client` (e.g., `client.TestPlan.create`). If your library import differs, follow your local pattern.
 
 ---
 
-## Common Usage Patterns
+## 🛠️ Common Usage Patterns
 
-* **filter** → retrieve serialized lists by field lookups
-* **create/update/remove** → standard CRUD flows
-* **add/remove (tag/attachment/property/comment)** → common side operations
-* **history / properties / list\_attachments** → fetch historical, metadata, and file info
-* **system.\*** → discover available methods, signatures, and inline help
+* 🔍 **filter** → retrieve serialized lists by field lookups
+* ✏️ **create/update/remove** → standard CRUD flows
+* 🏷️ **add/remove (tag/attachment/property/comment)** → common side operations
+* 📜 **history / properties / list\_attachments** → fetch historical, metadata, and file info
+* 🧰 **system.\*** → discover available methods, signatures, and inline help
 
 Example (search and update):
 
@@ -105,20 +105,20 @@ for r in runs:
 
 ---
 
-## Security & Debugging Tips
+## 🧰 Security & Debugging Tips
 
-* **PermissionDenied**: ensure the acting user has required roles/groups/permissions in Kiwi.
-* **DoesNotExist**: verify IDs/filters; prefer `filter` first to discover valid objects.
-* **ValidationError/ValueError**: confirm schema and types—use `system.methodSignature` for guidance.
-* **Emails/Attachments**: ensure valid email formats and correct Base64 encoding.
+* ⛔ **PermissionDenied**: ensure the acting user has required roles/groups/permissions in Kiwi.
+* 🔎 **DoesNotExist**: verify IDs/filters; prefer `filter` first to discover valid objects.
+* ⚠️ **ValidationError/ValueError**: confirm schema and types—use `system.methodSignature` for guidance.
+* ✉️ **Emails/Attachments**: ensure valid email formats and correct Base64 encoding.
 
 ---
 
-## Complete API Reference (by Entity)
+## 📚 Complete API Reference (by Entity)
 
 > **Note:** Everything you provided is included here as-is, organized and slightly polished for readability. Python-style examples use an instance named `client`.
 
-### Attachment
+### 📎 Attachment
 
 #### `Attachment.remove_attachment(attachment_id: int)`
 
@@ -132,7 +132,7 @@ for r in runs:
 
 ---
 
-### Auth
+### 🔐 Auth
 
 #### `Auth.login(username: str, password: str) -> str`
 
@@ -155,7 +155,7 @@ for r in runs:
 
 ---
 
-### Bug
+### 🐞 Bug
 
 #### `Bug.add_tag(bug_id: int, tag: str)`
 
@@ -188,7 +188,7 @@ for r in runs:
 
 ---
 
-### Build
+### 🧱 Build
 
 #### `Build.create(values: dict) -> dict`
 
@@ -206,7 +206,7 @@ for r in runs:
 
 ---
 
-### Category
+### 🗂️ Category
 
 #### `Category.create(values: dict) -> dict`
 
@@ -219,7 +219,7 @@ for r in runs:
 
 ---
 
-### Classification
+### 🏷️ Classification
 
 #### `Classification.create(values: dict) -> dict`
 
@@ -232,7 +232,7 @@ for r in runs:
 
 ---
 
-### Component
+### 🧩 Component
 
 #### `Component.create(values: dict) -> dict`
 
@@ -250,7 +250,7 @@ for r in runs:
 
 ---
 
-### Environment
+### 🌳 Environment
 
 #### `Environment.add_property(environment_id: int, name: str, value: str) -> dict`
 
@@ -273,7 +273,7 @@ for r in runs:
 
 ---
 
-### KiwiTCMS
+### 🥝 KiwiTCMS
 
 #### `KiwiTCMS.version() -> str`
 
@@ -282,7 +282,7 @@ for r in runs:
 
 ---
 
-### Markdown
+### ✍️ Markdown
 
 #### `Markdown.render(text: str) -> str`
 
@@ -291,7 +291,7 @@ for r in runs:
 
 ---
 
-### PlanType
+### 🗺️ PlanType
 
 #### `PlanType.create(values: dict) -> dict`
 
@@ -304,7 +304,7 @@ for r in runs:
 
 ---
 
-### Priority
+### ⬆️ Priority
 
 #### `Priority.filter(query: dict) -> list`
 
@@ -312,7 +312,7 @@ for r in runs:
 
 ---
 
-### Product
+### 📦 Product
 
 #### `Product.create(values: dict) -> dict`
 
@@ -325,7 +325,7 @@ for r in runs:
 
 ---
 
-### Tag
+### 🏷️ Tag
 
 #### `Tag.filter(query: dict) -> list`
 
@@ -333,7 +333,7 @@ for r in runs:
 
 ---
 
-### TestCase
+### 🧪 TestCase
 
 #### `TestCase.add_attachment(case_id: int, filename: str, b64content: str)`
 
@@ -447,7 +447,7 @@ for r in runs:
 
 ---
 
-### TestCaseStatus
+### 🔄 TestCaseStatus
 
 #### `TestCaseStatus.filter(query: dict) -> list`
 
@@ -455,7 +455,7 @@ for r in runs:
 
 ---
 
-### TestExecution
+### ▶️ TestExecution
 
 #### `TestExecution.add_comment(execution_id: int, comment: str) -> dict`
 
@@ -510,7 +510,7 @@ for r in runs:
 
 ---
 
-### TestExecutionStatus
+### 🔁 TestExecutionStatus
 
 #### `TestExecutionStatus.filter(query: dict) -> list`
 
@@ -518,7 +518,7 @@ for r in runs:
 
 ---
 
-### TestPlan
+### 🗒️ TestPlan
 
 #### `TestPlan.add_attachment(plan_id: int, filename: str, b64content: str)`
 
@@ -586,7 +586,7 @@ for r in runs:
 
 ---
 
-### TestRun
+### 🏃 TestRun
 
 #### `TestRun.add_attachment(run_id: int, filename: str, b64content: str)`
 
@@ -661,7 +661,7 @@ for r in runs:
 
 ---
 
-### Testing
+### 📈 Testing
 
 #### `Testing.breakdown(query: dict) -> dict`
 
@@ -690,7 +690,7 @@ for r in runs:
 
 ---
 
-### User
+### 👤 User
 
 #### `User.add_attachment(filename: str, b64content: str) -> dict`
 
@@ -715,7 +715,7 @@ for r in runs:
 
 ---
 
-### Version
+### 🔖 Version
 
 #### `Version.create(values: dict) -> dict`
 
@@ -728,7 +728,7 @@ for r in runs:
 
 ---
 
-### system.\*
+### 🧰 system.\*
 
 #### `system.listMethods() -> list[str]`
 
@@ -755,11 +755,11 @@ for r in runs:
 
 ---
 
-## Appendix: Quick Triage Checklist
+## 🧾 Appendix: Quick Triage Checklist
 
-* **401 / PermissionDenied** → check user roles/groups/permissions in Kiwi.
-* **DoesNotExist** → verify IDs/filters; run a `filter` first to discover valid objects.
-* **ValueError / ValidationError** → confirm schema/types; inspect with `system.methodSignature`.
-* **Emails / Attachments** → validate email formats; ensure correct Base64 encoding.
+* 🔐 **401 / PermissionDenied** → check user roles/groups/permissions in Kiwi.
+* 🧭 **DoesNotExist** → verify IDs/filters; run a `filter` first to discover valid objects.
+* 🧪 **ValueError / ValidationError** → confirm schema/types; inspect with `system.methodSignature`.
+* 📎 **Emails / Attachments** → validate email formats; ensure correct Base64 encoding.
 
 ---
